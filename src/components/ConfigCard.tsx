@@ -103,9 +103,19 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
           Adjust rest/prep time each round (use negative to decrease)
         </p>
         
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <NumberInput
-            label="Rest Adjustment"
+            label="Work Adj."
+            value={config.workAdjustment}
+            onChange={(v) => updateField('workAdjustment', v)}
+            min={-30}
+            max={30}
+            suffix="s"
+            colorClass="text-work"
+            showSign
+          />
+          <NumberInput
+            label="Rest Adj."
             value={config.restAdjustment}
             onChange={(v) => updateField('restAdjustment', v)}
             min={-30}
@@ -115,7 +125,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             showSign
           />
           <NumberInput
-            label="Prep Adjustment"
+            label="Prep Adj."
             value={config.preparationAdjustment}
             onChange={(v) => updateField('preparationAdjustment', v)}
             min={-30}

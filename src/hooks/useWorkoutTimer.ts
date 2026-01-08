@@ -12,6 +12,11 @@ export const useWorkoutTimer = (config: TimerConfig) => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const getAdjustedWorkTime = useCallback((round: number) => {
+    const adjustment = config.workAdjustment * (round - 1);
+    return Math.max(0, config.workTime + adjustment);
+  }, [config.workTime, config.workAdjustment]);
+
   const getAdjustedPauseTime = useCallback((round: number) => {
     const adjustment = config.restAdjustment * (round - 1);
     return Math.max(0, config.pauseTime + adjustment);
@@ -26,7 +31,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     switch (currentPhase) {
       case 'idle':
       case 'preparation':
-        return { phase: 'work', round: currentRound, time: config.workTime };
+        return { phase: 'work', round: currentRound, time: getAdjustedWorkTime(currentRound) };
       case 'work':
         if (currentRound >= config.rounds) {
           return { phase: 'complete', round: currentRound, time: 0 };
@@ -38,7 +43,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
       default:
         return { phase: 'complete', round: currentRound, time: 0 };
     }
-  }, [config.workTime, config.rounds, getAdjustedPauseTime, getAdjustedPrepTime]);
+  }, [config.rounds, getAdjustedWorkTime, getAdjustedPauseTime, getAdjustedPrepTime]);
 
   const tick = useCallback(() => {
     setState(prev => {
@@ -141,6 +146,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     reset,
     skipPhase,
     adjustTime,
+    getAdjustedWorkTime,
     getAdjustedPauseTime,
     getAdjustedPrepTime,
   };

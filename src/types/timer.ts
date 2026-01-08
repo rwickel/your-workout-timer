@@ -3,6 +3,7 @@ export interface TimerConfig {
   pauseTime: number; // in seconds
   preparationTime: number; // in seconds
   rounds: number;
+  workAdjustment: number; // seconds to add/subtract work time each round
   restAdjustment: number; // seconds to add/subtract each round (can be negative)
   preparationAdjustment: number; // seconds to add/subtract each round
 }
@@ -22,6 +23,7 @@ export const DEFAULT_CONFIG: TimerConfig = {
   pauseTime: 15,
   preparationTime: 10,
   rounds: 8,
+  workAdjustment: 0,
   restAdjustment: 0,
   preparationAdjustment: 0,
 };

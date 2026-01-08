@@ -1,17 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, ChevronLeft } from 'lucide-react';
-import { TimerConfig, DEFAULT_CONFIG } from '@/types/timer';
+import { TimerConfig, DEFAULT_CONFIG, TimerPhase } from '@/types/timer';
 import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
+import { useAudio } from '@/hooks/useAudio';
+import { useFavorites } from '@/hooks/useFavorites';
 import { TimerDisplay } from '@/components/TimerDisplay';
 import { TimerControls } from '@/components/TimerControls';
 import { ConfigCard } from '@/components/ConfigCard';
 import { WorkoutSummary } from '@/components/WorkoutSummary';
+import { FavoritesPanel } from '@/components/FavoritesPanel';
+import { AudioToggle } from '@/components/AudioToggle';
 
 const Index: React.FC = () => {
   const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
   const [showConfig, setShowConfig] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  
   const timer = useWorkoutTimer(config);
+  const audio = useAudio();
+  const { favorites, addFavorite, removeFavorite } = useFavorites();
+  
+  const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
+  const prevTimeRef = useRef<number>(timer.state.timeRemaining);
+
+  // Audio effects for phase changes and countdown
+  useEffect(() => {
+    audio.setEnabled(audioEnabled);
+  }, [audioEnabled, audio]);
+
+  useEffect(() => {
+    const currentPhase = timer.state.phase;
+    const currentTime = timer.state.timeRemaining;
+    
+    // Phase change sound
+    if (prevPhaseRef.current !== currentPhase && currentPhase !== 'idle') {
+      audio.playPhaseChange(currentPhase);
+    }
+    
+    // Countdown beep
+    if (timer.state.isRunning && currentTime !== prevTimeRef.current) {
+      audio.playCountdown(currentTime);
+    }
+    
+    prevPhaseRef.current = currentPhase;
+    prevTimeRef.current = currentTime;
+  }, [timer.state.phase, timer.state.timeRemaining, timer.state.isRunning, audio]);
 
   const handleStartWorkout = () => {
     setShowConfig(false);
@@ -22,6 +56,14 @@ const Index: React.FC = () => {
   const handleBackToConfig = () => {
     timer.reset();
     setShowConfig(true);
+  };
+
+  const handleLoadFavorite = (favoriteConfig: TimerConfig) => {
+    setConfig(favoriteConfig);
+  };
+
+  const toggleAudio = () => {
+    setAudioEnabled(prev => !prev);
   };
 
   return (
@@ -42,15 +84,17 @@ const Index: React.FC = () => {
         <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-primary">
           Workout Timer
         </h1>
-        {!showConfig && (
-          <button
-            onClick={handleBackToConfig}
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <Settings className="h-5 w-5" />
-          </button>
-        )}
-        {showConfig && <div />}
+        <div className="flex items-center gap-2">
+          <AudioToggle enabled={audioEnabled} onToggle={toggleAudio} />
+          {!showConfig && (
+            <button
+              onClick={handleBackToConfig}
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Main Content */}
@@ -67,6 +111,14 @@ const Index: React.FC = () => {
               >
                 <ConfigCard config={config} onChange={setConfig} />
                 <WorkoutSummary config={config} />
+                
+                <FavoritesPanel
+                  favorites={favorites}
+                  currentConfig={config}
+                  onSelect={handleLoadFavorite}
+                  onSave={addFavorite}
+                  onDelete={removeFavorite}
+                />
                 
                 <motion.button
                   whileTap={{ scale: 0.98 }}
