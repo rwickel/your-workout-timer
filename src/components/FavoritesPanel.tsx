@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Trash2, Play, Plus, X } from 'lucide-react';
+import { Heart, Trash2, Play, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { TimerConfig, formatTime } from '@/types/timer';
 import { FavoriteWorkout } from '@/hooks/useFavorites';
 
@@ -21,6 +21,7 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
 }) => {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [newName, setNewName] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const handleSave = () => {
     if (newName.trim()) {
@@ -28,6 +29,10 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
       setNewName('');
       setShowSaveDialog(false);
     }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
   };
 
   return (
@@ -97,28 +102,82 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="flex items-center gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted"
+              className="rounded-lg bg-muted/50 transition-colors hover:bg-muted overflow-hidden"
             >
-              <div className="flex-1 min-w-0">
-                <p className="truncate font-medium text-foreground">{fav.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatTime(fav.config.workTime)} work • {formatTime(fav.config.pauseTime)} rest • {fav.config.rounds} rounds
-                </p>
+              <div 
+                className="flex items-center gap-3 p-3 cursor-pointer"
+                onClick={() => toggleExpand(fav.id)}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="truncate font-medium text-foreground">{fav.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatTime(fav.config.workTime)} work • {formatTime(fav.config.pauseTime)} rest • {fav.config.rounds} rounds
+                  </p>
+                </div>
+                <button
+                  className="rounded-md bg-background/50 p-2 text-muted-foreground transition-colors hover:bg-background"
+                  title="Toggle details"
+                >
+                  {expandedId === fav.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onSelect(fav.config); }}
+                  className="rounded-md bg-primary/20 p-2 text-primary transition-colors hover:bg-primary/30"
+                  title="Load workout"
+                >
+                  <Play className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDelete(fav.id); }}
+                  className="rounded-md bg-destructive/20 p-2 text-destructive transition-colors hover:bg-destructive/30"
+                  title="Delete workout"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
-              <button
-                onClick={() => onSelect(fav.config)}
-                className="rounded-md bg-primary/20 p-2 text-primary transition-colors hover:bg-primary/30"
-                title="Load workout"
-              >
-                <Play className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => onDelete(fav.id)}
-                className="rounded-md bg-destructive/20 p-2 text-destructive transition-colors hover:bg-destructive/30"
-                title="Delete workout"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              
+              <AnimatePresence>
+                {expandedId === fav.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid grid-cols-2 gap-2 px-3 pb-3 text-sm">
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-work">Work:</span>
+                        <span className="ml-2 font-mono text-foreground">{formatTime(fav.config.workTime)}</span>
+                      </div>
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-pause">Pause:</span>
+                        <span className="ml-2 font-mono text-foreground">{formatTime(fav.config.pauseTime)}</span>
+                      </div>
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-preparation">Prep:</span>
+                        <span className="ml-2 font-mono text-foreground">{formatTime(fav.config.preparationTime)}</span>
+                      </div>
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-muted-foreground">Rounds:</span>
+                        <span className="ml-2 font-mono text-foreground">{fav.config.rounds}</span>
+                      </div>
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-muted-foreground">Work Adj:</span>
+                        <span className="ml-2 font-mono text-foreground">{fav.config.workAdjustment}s</span>
+                      </div>
+                      <div className="rounded-md bg-background/50 p-2">
+                        <span className="text-muted-foreground">Rest Adj:</span>
+                        <span className="ml-2 font-mono text-foreground">{fav.config.restAdjustment}s</span>
+                      </div>
+                      <div className="col-span-2 rounded-md bg-background/50 p-2">
+                        <span className="text-muted-foreground">Prep Adj:</span>
+                        <span className="ml-2 font-mono text-foreground">{fav.config.preparationAdjustment}s</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </div>
