@@ -9,6 +9,7 @@ const createAudioContext = () => {
 export const useAudio = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const enabledRef = useRef(true);
+  const volumeRef = useRef(0.5);
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
@@ -31,7 +32,8 @@ export const useAudio = () => {
       oscillator.frequency.value = frequency;
       oscillator.type = type;
 
-      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      const volume = volumeRef.current;
+      gainNode.gain.setValueAtTime(volume, ctx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
 
       oscillator.start(ctx.currentTime);
@@ -77,10 +79,18 @@ export const useAudio = () => {
     enabledRef.current = enabled;
   }, []);
 
+  const setVolume = useCallback((volume: number) => {
+    volumeRef.current = Math.max(0, Math.min(1, volume));
+  }, []);
+
+  const getVolume = useCallback(() => volumeRef.current, []);
+
   return {
     playPhaseChange,
     playCountdown,
     setEnabled,
+    setVolume,
+    getVolume,
     isEnabled: () => enabledRef.current,
   };
 };
