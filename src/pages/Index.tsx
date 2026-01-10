@@ -16,6 +16,7 @@ const Index: React.FC = () => {
   const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
   const [showConfig, setShowConfig] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [audioVolume, setAudioVolume] = useState(0.5);
   
   const timer = useWorkoutTimer(config);
   const audio = useAudio();
@@ -27,7 +28,8 @@ const Index: React.FC = () => {
   // Audio effects for phase changes and countdown
   useEffect(() => {
     audio.setEnabled(audioEnabled);
-  }, [audioEnabled, audio]);
+    audio.setVolume(audioVolume);
+  }, [audioEnabled, audioVolume, audio]);
 
   useEffect(() => {
     const currentPhase = timer.state.phase;
@@ -66,6 +68,10 @@ const Index: React.FC = () => {
     setAudioEnabled(prev => !prev);
   };
 
+  const handleVolumeChange = (volume: number) => {
+    setAudioVolume(volume);
+  };
+
   return (
     <div className="flex min-h-full flex-col bg-background mobile-safe">
       {/* Header */}
@@ -85,7 +91,12 @@ const Index: React.FC = () => {
           Workout Timer
         </h1>
         <div className="flex items-center gap-2">
-          <AudioToggle enabled={audioEnabled} onToggle={toggleAudio} />
+          <AudioToggle 
+            enabled={audioEnabled} 
+            onToggle={toggleAudio} 
+            volume={audioVolume}
+            onVolumeChange={handleVolumeChange}
+          />
           {!showConfig && (
             <button
               onClick={handleBackToConfig}
