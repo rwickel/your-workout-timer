@@ -20,7 +20,7 @@ npm i
 npm run dev
 ```
 
-##Build Android App:
+Build Android App:
 
 ```sh
 npm install
@@ -31,10 +31,9 @@ npx cap sync android
 npx cap open android
 ```
 
-##Delete server settings from loveable
+*Delete server settings from loveable
 
-<img width="801" height="262" alt="image" src="https://github.com/user-attachments/assets/af415e6f-7130-4261-9ea9-754a793aea80" />
-
+![alt text](image.png)
 
 ```ts
 import type { CapacitorConfig } from '@capacitor/cli';
