@@ -8,10 +8,10 @@ Follow these steps:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
-git clone https://github.com/rwickel/your-workout-buddy.git
+git clone https://github.com/rwickel/your-workout-timer.git
 
 # Step 2: Navigate to the project directory.
-cd your-workout-buddy
+cd your-workout-timer
 
 # Step 3: Install the necessary dependencies.
 npm i
@@ -45,4 +45,5 @@ const config: CapacitorConfig = {
 };
 
 export default config;
+
 ```
