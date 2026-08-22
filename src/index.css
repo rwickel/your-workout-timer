@@ -2,88 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Workout Timer Design System - Dark Energetic Theme */
+/* Minimalist Workout Timer Design System - Pure Monochrome */
 @layer base {
   :root {
-    /* Core dark theme */
-    --background: 220 20% 8%;
-    --foreground: 0 0% 98%;
+    /* Pure black canvas */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 220 18% 12%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary - Neon Cyan */
-    --primary: 175 100% 50%;
-    --primary-foreground: 220 20% 8%;
+    /* Primary - pure white for interactive elements */
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Secondary - Deep Purple */
-    --secondary: 260 60% 45%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - deep charcoal */
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted */
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 0 0% 64%;
 
-    /* Accent - Neon Green */
-    --accent: 145 100% 50%;
-    --accent-foreground: 220 20% 8%;
+    /* Accent - neutral (monochrome brief: no accent colors) */
+    --accent: 0 0% 9%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Destructive - Warm Red */
-    --destructive: 0 85% 55%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 0% 40%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Timer Phase Colors */
-    --work: 145 100% 50%;
-    --work-foreground: 220 20% 8%;
-    --pause: 35 100% 55%;
-    --pause-foreground: 220 20% 8%;
-    --preparation: 200 100% 55%;
-    --preparation-foreground: 220 20% 8%;
+    --border: 0 0% 9%;
+    --input: 0 0% 9%;
+    --ring: 0 0% 100%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 175 100% 50%;
-
-    --radius: 1rem;
-
-    /* Shadows */
-    --shadow-glow: 0 0 30px -5px;
-    --shadow-card: 0 8px 32px -8px hsl(220 50% 5% / 0.6);
+    --radius: 0.5rem;
 
     /* Sidebar */
-    --sidebar-background: 220 20% 6%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 175 100% 50%;
-    --sidebar-primary-foreground: 220 20% 8%;
-    --sidebar-accent: 220 15% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 15% 15%;
-    --sidebar-ring: 175 100% 50%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 9%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 9%;
+    --sidebar-ring: 0 0% 100%;
   }
 
   .dark {
-    --background: 220 20% 8%;
-    --foreground: 0 0% 98%;
-    --card: 220 18% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 18% 12%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 175 100% 50%;
-    --primary-foreground: 220 20% 8%;
-    --secondary: 260 60% 45%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 145 100% 50%;
-    --accent-foreground: 220 20% 8%;
-    --destructive: 0 85% 55%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 175 100% 50%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 9%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 0% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 9%;
+    --input: 0 0% 9%;
+    --ring: 0 0% 100%;
   }
 }
 
@@ -92,7 +79,9 @@
     @apply border-border;
   }
 
-  html, body, #root {
+  html,
+  body,
+  #root {
     @apply h-full;
   }
 
@@ -107,43 +96,21 @@
 
 @layer components {
   .timer-display {
-    @apply text-7xl font-bold tracking-tight;
+    @apply text-8xl font-bold tracking-tight text-white;
     font-variant-numeric: tabular-nums;
   }
 
-  .phase-work {
-    color: hsl(var(--work));
-    text-shadow: 0 0 40px hsl(var(--work) / 0.5);
+  /* Monochrome phase treatment - weight instead of color */
+  .phase-active {
+    @apply text-white;
   }
 
-  .phase-pause {
-    color: hsl(var(--pause));
-    text-shadow: 0 0 40px hsl(var(--pause) / 0.5);
+  .phase-inactive {
+    @apply text-neutral-400;
   }
 
-  .phase-preparation {
-    color: hsl(var(--preparation));
-    text-shadow: 0 0 40px hsl(var(--preparation) / 0.5);
-  }
-
-  .card-gradient {
-    background: linear-gradient(180deg, hsl(220 18% 14%), hsl(220 18% 10%));
-  }
-
-  .glow-work {
-    box-shadow: var(--shadow-glow) hsl(var(--work) / 0.4);
-  }
-
-  .glow-pause {
-    box-shadow: var(--shadow-glow) hsl(var(--pause) / 0.4);
-  }
-
-  .glow-preparation {
-    box-shadow: var(--shadow-glow) hsl(var(--preparation) / 0.4);
-  }
-
-  .glow-primary {
-    box-shadow: var(--shadow-glow) hsl(var(--primary) / 0.4);
+  .section-label {
+    @apply text-xs font-medium uppercase tracking-widest text-neutral-400;
   }
 
   .mobile-safe {
@@ -155,7 +122,7 @@
 }
 
 @layer utilities {
-  .text-glow {
-    text-shadow: 0 0 20px currentColor;
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 }

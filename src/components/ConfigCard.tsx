@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { TimerConfig } from '@/types/timer';
 import { TimeInput } from './TimeInput';
 import { NumberInput } from './NumberInput';
-import { Dumbbell, Coffee, Timer, RotateCw, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface ConfigCardProps {
   config: TimerConfig;
@@ -17,92 +16,53 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 rounded-2xl bg-card p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
     >
       {/* Timer Durations */}
       <div className="space-y-4">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <Timer className="h-5 w-5 text-primary" />
-          Timer Settings
-        </h3>
-        
-        <div className="grid gap-4">
-          <div className="flex items-start gap-3">
-            <div className="mt-8 rounded-lg bg-work/20 p-2">
-              <Dumbbell className="h-5 w-5 text-work" />
-            </div>
-            <div className="flex-1">
-              <TimeInput
-                label="Work Time"
-                value={config.workTime}
-                onChange={(v) => updateField('workTime', v)}
-                colorClass="text-work"
-              />
-            </div>
-          </div>
+        <TimeInput
+          label="Work Time"
+          value={config.workTime}
+          onChange={(v) => updateField('workTime', v)}
+        />
 
-          <div className="flex items-start gap-3">
-            <div className="mt-8 rounded-lg bg-pause/20 p-2">
-              <Coffee className="h-5 w-5 text-pause" />
-            </div>
-            <div className="flex-1">
-              <TimeInput
-                label="Rest Time"
-                value={config.pauseTime}
-                onChange={(v) => updateField('pauseTime', v)}
-                colorClass="text-pause"
-              />
-            </div>
-          </div>
+        <TimeInput
+          label="Rest Time"
+          value={config.pauseTime}
+          onChange={(v) => updateField('pauseTime', v)}
+        />
 
-          <div className="flex items-start gap-3">
-            <div className="mt-8 rounded-lg bg-preparation/20 p-2">
-              <Timer className="h-5 w-5 text-preparation" />
-            </div>
-            <div className="flex-1">
-              <TimeInput
-                label="Preparation Time"
-                value={config.preparationTime}
-                onChange={(v) => updateField('preparationTime', v)}
-                colorClass="text-preparation"
-              />
-            </div>
-          </div>
-        </div>
+        <TimeInput
+          label="Preparation Time"
+          value={config.preparationTime}
+          onChange={(v) => updateField('preparationTime', v)}
+        />
       </div>
+
+      <div className="border-t border-neutral-900" />
 
       {/* Rounds */}
       <div className="space-y-4">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <RotateCw className="h-5 w-5 text-primary" />
-          Rounds
-        </h3>
         <NumberInput
           label="Number of Rounds"
           value={config.rounds}
           onChange={(v) => updateField('rounds', v)}
           min={1}
           max={99}
-          colorClass="text-primary"
         />
       </div>
 
+      <div className="border-t border-neutral-900" />
+
       {/* Progressive Adjustments */}
       <div className="space-y-4">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          {config.restAdjustment >= 0 ? (
-            <TrendingUp className="h-5 w-5 text-primary" />
-          ) : (
-            <TrendingDown className="h-5 w-5 text-primary" />
-          )}
-          Progressive Adjustment
-        </h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="section-label">Progressive Adjustment</h3>
+        <p className="text-sm text-neutral-400">
           Adjust rest/prep time each round (use negative to decrease)
         </p>
-        
+
         <div className="grid gap-4 sm:grid-cols-3">
           <NumberInput
             label="Work Adj."
@@ -111,7 +71,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             min={-30}
             max={30}
             suffix="s"
-            colorClass="text-work"
             showSign
           />
           <NumberInput
@@ -121,7 +80,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             min={-30}
             max={30}
             suffix="s"
-            colorClass="text-pause"
             showSign
           />
           <NumberInput
@@ -131,7 +89,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             min={-30}
             max={30}
             suffix="s"
-            colorClass="text-preparation"
             showSign
           />
         </div>

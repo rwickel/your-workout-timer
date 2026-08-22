@@ -75,6 +75,35 @@ export const useAudio = () => {
     }
   }, [playTone]);
 
+  // Spoken voice announcement
+  const speak = useCallback((text: string) => {
+    if (!enabledRef.current) return;
+
+    try {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        const englishVoice = window.speechSynthesis
+          .getVoices()
+          .find((voice) => voice.lang.startsWith('en'));
+        if (englishVoice) {
+          utterance.voice = englishVoice;
+        }
+        utterance.volume = volumeRef.current;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (e) {
+      console.warn('Speech playback failed:', e);
+    }
+  }, []);
+
+  // Spoken voice countdown (e.g. preparation: 10, 9, 8...)
+  const speakCountdown = useCallback((secondsLeft: number) => {
+    if (!enabledRef.current || secondsLeft <= 0 || secondsLeft > 10) return;
+    speak(String(secondsLeft));
+  }, [speak]);
+
   const setEnabled = useCallback((enabled: boolean) => {
     enabledRef.current = enabled;
   }, []);
@@ -88,6 +117,8 @@ export const useAudio = () => {
   return {
     playPhaseChange,
     playCountdown,
+    speakCountdown,
+    speak,
     setEnabled,
     setVolume,
     getVolume,

@@ -9,7 +9,6 @@ interface TimeInputProps {
   min?: number;
   max?: number;
   step?: number;
-  colorClass?: string;
 }
 
 export const TimeInput: React.FC<TimeInputProps> = ({
@@ -19,7 +18,6 @@ export const TimeInput: React.FC<TimeInputProps> = ({
   min = 0,
   max = 3600,
   step = 5,
-  colorClass = 'text-primary',
 }) => {
   const [inputValue, setInputValue] = useState(formatTime(value));
   const [isEditing, setIsEditing] = useState(false);
@@ -40,17 +38,15 @@ export const TimeInput: React.FC<TimeInputProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/[^0-9:]/g, '');
-    
-    // Auto-insert colon after 2 digits if not present
+
     if (val.length === 2 && !val.includes(':')) {
       val = val + ':';
     }
-    
-    // Limit format to mm:ss
+
     if (val.length > 5) {
       val = val.slice(0, 5);
     }
-    
+
     setInputValue(val);
   };
 
@@ -73,12 +69,13 @@ export const TimeInput: React.FC<TimeInputProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className={`text-sm font-medium ${colorClass}`}>{label}</label>
-      <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
+    <div className="flex flex-col gap-1">
+      <label className="section-label">{label}</label>
+      <div className="flex items-center justify-between">
         <button
           onClick={handleDecrement}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-background/50 text-foreground transition-colors hover:bg-background active:scale-95"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          aria-label={`Decrease ${label}`}
         >
           <Minus className="h-5 w-5" />
         </button>
@@ -89,12 +86,13 @@ export const TimeInput: React.FC<TimeInputProps> = ({
           onBlur={handleBlur}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
-          className={`w-full min-w-0 bg-transparent text-center font-mono text-2xl font-bold ${colorClass} focus:outline-none focus:ring-2 focus:ring-primary rounded-md`}
+          className="w-full min-w-0 bg-transparent text-center font-mono text-3xl font-bold text-white tabular focus:outline-none"
           placeholder="00:00"
         />
         <button
           onClick={handleIncrement}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-background/50 text-foreground transition-colors hover:bg-background active:scale-95"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          aria-label={`Increase ${label}`}
         >
           <Plus className="h-5 w-5" />
         </button>

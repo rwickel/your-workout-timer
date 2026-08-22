@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { TimerConfig, DEFAULT_CONFIG, TimerPhase } from '@/types/timer';
 import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
 import { useAudio } from '@/hooks/useAudio';
@@ -16,16 +16,15 @@ const Index: React.FC = () => {
   const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
   const [showConfig, setShowConfig] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [audioVolume, setAudioVolume] = useState(0.5);
-  
+  const [audioVolume, setAudioVolume] = useState(1);
+
   const timer = useWorkoutTimer(config);
   const audio = useAudio();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
-  
+
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
 
-  // Audio effects for phase changes and countdown
   useEffect(() => {
     audio.setEnabled(audioEnabled);
     audio.setVolume(audioVolume);
@@ -34,17 +33,54 @@ const Index: React.FC = () => {
   useEffect(() => {
     const currentPhase = timer.state.phase;
     const currentTime = timer.state.timeRemaining;
-    
-    // Phase change sound
+
     if (prevPhaseRef.current !== currentPhase && currentPhase !== 'idle') {
       audio.playPhaseChange(currentPhase);
+
+      // Voice announcement per phase change
+      const currentRound = timer.state.currentRound;
+      const pauseDuration = Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1));
+
+      switch (currentPhase) {
+        case 'preparation':
+          // Only announce when there is time to say it before the countdown
+          if (config.preparationTime > 10) {
+            audio.speak('Prepare for work');
+          }
+          break;
+        case 'work':
+          audio.speak('Work');
+          break;
+        case 'pause':
+          // Skip the announcement for very short rest times so it
+          // doesn't overlap with the end-of-rest countdown
+          if (pauseDuration > 10) {
+            audio.speak('Prepare for rest');
+          }
+          break;
+        case 'complete':
+          audio.speak('Workout complete');
+          break;
+      }
     }
-    
-    // Countdown beep
+
     if (timer.state.isRunning && currentTime !== prevTimeRef.current) {
-      audio.playCountdown(currentTime);
+      // Voice countdown before each work phase (preparation & rest: 10, 9, 8...)
+      const isPreWork = currentPhase === 'preparation' || currentPhase === 'pause';
+      // When rest time is 0, the 10-count happens at the end of the ongoing work phase
+      const restIsSkipped =
+        currentPhase === 'work' &&
+        config.rounds > 1 &&
+        timer.state.currentRound < config.rounds &&
+        Math.max(0, config.pauseTime + config.restAdjustment * (timer.state.currentRound - 1)) <= 0;
+
+      if ((isPreWork || restIsSkipped) && currentTime <= 10 && currentTime > 0) {
+        audio.speakCountdown(currentTime);
+      } else {
+        audio.playCountdown(currentTime);
+      }
     }
-    
+
     prevPhaseRef.current = currentPhase;
     prevTimeRef.current = currentTime;
   }, [timer.state.phase, timer.state.timeRemaining, timer.state.isRunning, audio]);
@@ -73,13 +109,13 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-full flex-col bg-background mobile-safe">
+    <div className="flex min-h-full flex-col bg-black text-white mobile-safe">
       {/* Header */}
-      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-card/80 px-4 backdrop-blur-lg">
+      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-900 bg-black px-4">
         {!showConfig ? (
           <button
             onClick={handleBackToConfig}
-            className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+            className="flex items-center gap-1 font-bold text-neutral-400 transition-colors hover:text-white"
           >
             <ChevronLeft className="h-5 w-5" />
             <span className="text-sm">Back</span>
@@ -87,24 +123,13 @@ const Index: React.FC = () => {
         ) : (
           <div />
         )}
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-primary">
-          Workout Timer
-        </h1>
-        <div className="flex items-center gap-2">
-          <AudioToggle 
-            enabled={audioEnabled} 
-            onToggle={toggleAudio} 
+        <div className="ml-auto flex items-center gap-2">
+          <AudioToggle
+            enabled={audioEnabled}
+            onToggle={toggleAudio}
             volume={audioVolume}
             onVolumeChange={handleVolumeChange}
           />
-          {!showConfig && (
-            <button
-              onClick={handleBackToConfig}
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Settings className="h-5 w-5" />
-            </button>
-          )}
         </div>
       </header>
 
@@ -115,14 +140,14 @@ const Index: React.FC = () => {
             {showConfig ? (
               <motion.div
                 key="config"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="space-y-6 pb-8"
               >
                 <ConfigCard config={config} onChange={setConfig} />
                 <WorkoutSummary config={config} />
-                
+
                 <FavoritesPanel
                   favorites={favorites}
                   currentConfig={config}
@@ -130,11 +155,11 @@ const Index: React.FC = () => {
                   onSave={addFavorite}
                   onDelete={removeFavorite}
                 />
-                
+
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handleStartWorkout}
-                  className="w-full rounded-xl bg-primary py-4 text-lg font-bold text-primary-foreground transition-all glow-primary hover:brightness-110"
+                  className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
                 >
                   Start Workout
                 </motion.button>
@@ -142,9 +167,9 @@ const Index: React.FC = () => {
             ) : (
               <motion.div
                 key="timer"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-12"
               >
                 <TimerDisplay state={timer.state} totalRounds={config.rounds} />
@@ -159,16 +184,16 @@ const Index: React.FC = () => {
 
                 {timer.state.phase === 'complete' && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     className="text-center"
                   >
-                    <h2 className="mb-4 text-2xl font-bold text-work">
-                      🎉 Workout Complete!
+                    <h2 className="mb-4 text-xl font-bold uppercase tracking-widest text-white">
+                      Workout Complete
                     </h2>
                     <button
                       onClick={handleBackToConfig}
-                      className="rounded-lg bg-muted px-6 py-3 font-medium text-foreground transition-colors hover:bg-muted/80"
+                      className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-colors hover:text-white"
                     >
                       Back to Settings
                     </button>

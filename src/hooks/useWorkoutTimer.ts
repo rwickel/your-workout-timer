@@ -36,10 +36,15 @@ export const useWorkoutTimer = (config: TimerConfig) => {
         if (currentRound >= config.rounds) {
           return { phase: 'complete', round: currentRound, time: 0 };
         }
+        // When rest time is 0, skip rest and go straight to the next work phase
+        if (getAdjustedPauseTime(currentRound) <= 0) {
+          return { phase: 'work', round: currentRound + 1, time: getAdjustedWorkTime(currentRound + 1) };
+        }
         return { phase: 'pause', round: currentRound, time: getAdjustedPauseTime(currentRound) };
       case 'pause':
+        // No preparation between rounds - go straight into the next work phase
         const nextRound = currentRound + 1;
-        return { phase: 'preparation', round: nextRound, time: getAdjustedPrepTime(nextRound) };
+        return { phase: 'work', round: nextRound, time: getAdjustedWorkTime(nextRound) };
       default:
         return { phase: 'complete', round: currentRound, time: 0 };
     }

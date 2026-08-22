@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, RotateCcw, SkipForward, Minus, Plus } from 'lucide-react';
+import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
 import { TimerState } from '@/types/timer';
 
 interface TimerControlsProps {
@@ -23,70 +23,68 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
   const isActive = state.phase !== 'idle' && state.phase !== 'complete';
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* Time Adjustment */}
-      {isActive && (
-        <div className="flex items-center gap-4">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onAdjustTime(-10)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/80"
-          >
-            <Minus className="h-5 w-5" />
-          </motion.button>
-          <span className="text-sm text-muted-foreground">±10s</span>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onAdjustTime(10)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/80"
-          >
-            <Plus className="h-5 w-5" />
-          </motion.button>
-        </div>
-      )}
-
-      {/* Main Controls */}
-      <div className="flex items-center gap-6">
-        {/* Reset Button */}
+    <div className="flex items-center justify-center gap-8 sm:gap-12">
+      {/* Left column: Reset + decrease */}
+      <div className="flex w-16 flex-col items-center gap-5">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onReset}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/80"
+          className="p-1 text-neutral-400 transition-colors hover:text-white"
+          aria-label="Reset"
         >
-          <RotateCcw className="h-6 w-6" />
+          <RotateCcw className="h-7 w-7" />
         </motion.button>
+        {isActive && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onAdjustTime(-10)}
+            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-colors hover:border-neutral-400 hover:text-white"
+          >
+            -10s
+          </motion.button>
+        )}
+      </div>
 
-        {/* Play/Pause Button */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={state.isRunning ? onPause : onStart}
-          disabled={state.phase === 'complete'}
-          className={`flex h-20 w-20 items-center justify-center rounded-full transition-all glow-primary ${
-            state.phase === 'complete'
-              ? 'bg-muted text-muted-foreground'
-              : 'bg-primary text-primary-foreground hover:brightness-110'
-          }`}
-        >
-          {state.isRunning ? (
-            <Pause className="h-8 w-8" />
-          ) : (
-            <Play className="ml-1 h-8 w-8" />
-          )}
-        </motion.button>
+      {/* Play/Pause Button */}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        onClick={state.isRunning ? onPause : onStart}
+        disabled={state.phase === 'complete'}
+        className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-full transition-opacity ${
+          state.phase === 'complete'
+            ? 'bg-neutral-900 text-neutral-600'
+            : 'bg-white text-black hover:bg-neutral-200'
+        }`}
+      >
+        {state.isRunning ? (
+          <Pause className="h-8 w-8" />
+        ) : (
+          <Play className="ml-1 h-8 w-8" />
+        )}
+      </motion.button>
 
-        {/* Skip Button */}
+      {/* Right column: Skip + increase */}
+      <div className="flex w-16 flex-col items-center gap-5">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onSkip}
           disabled={!isActive}
-          className={`flex h-14 w-14 items-center justify-center rounded-full transition-colors ${
-            isActive
-              ? 'bg-muted text-muted-foreground hover:bg-muted/80'
-              : 'bg-muted/30 text-muted-foreground/30'
+          className={`p-1 transition-colors ${
+            isActive ? 'text-neutral-400 hover:text-white' : 'text-neutral-700'
           }`}
+          aria-label="Skip"
         >
-          <SkipForward className="h-6 w-6" />
+          <SkipForward className="h-7 w-7" />
         </motion.button>
+        {isActive && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onAdjustTime(10)}
+            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-colors hover:border-neutral-400 hover:text-white"
+          >
+            +10s
+          </motion.button>
+        )}
       </div>
     </div>
   );

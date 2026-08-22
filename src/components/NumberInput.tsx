@@ -21,7 +21,6 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   max = 999,
   step = 1,
   suffix = '',
-  colorClass = 'text-primary',
   showSign = false,
 }) => {
   const handleIncrement = () => {
@@ -35,21 +34,23 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   const displayValue = showSign && value > 0 ? `+${value}` : value.toString();
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className={`text-sm font-medium ${colorClass}`}>{label}</label>
-      <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-2">
+    <div className="flex flex-col gap-1">
+      <label className="section-label">{label}</label>
+      <div className="flex items-center justify-between">
         <button
           onClick={handleDecrement}
-          className="flex h-10 w-10 items-center justify-center rounded-md bg-background/50 text-foreground transition-colors hover:bg-background active:scale-95"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          aria-label={`Decrease ${label}`}
         >
           <Minus className="h-5 w-5" />
         </button>
-        <div className={`flex-1 text-center font-mono text-2xl font-bold ${colorClass}`}>
+        <div className="flex-1 text-center font-mono text-3xl font-bold text-white tabular">
           {displayValue}{suffix}
         </div>
         <button
           onClick={handleIncrement}
-          className="flex h-10 w-10 items-center justify-center rounded-md bg-background/50 text-foreground transition-colors hover:bg-background active:scale-95"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          aria-label={`Increase ${label}`}
         >
           <Plus className="h-5 w-5" />
         </button>
