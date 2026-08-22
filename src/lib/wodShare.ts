@@ -56,8 +56,8 @@ export const decodeWod = (encoded: string): Wod | null => {
   }
 };
 
-// Network address used for shared links (reachable from other devices on the LAN)
-const SHARE_ORIGIN = 'http://192.168.1.20:8081';
+// Tailscale HTTPS address - valid certificate, enables PWA install on Android
+const SHARE_ORIGIN = 'https://maco.taild0181d.ts.net';
 
 export const shareUrlFor = (wod: Wod): string =>
   `${SHARE_ORIGIN}/wod?d=${encodeWod(wod)}`;
