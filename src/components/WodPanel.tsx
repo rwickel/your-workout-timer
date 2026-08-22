@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Trash2, Plus, Pencil } from 'lucide-react';
+import { Play, Trash2, Plus, Pencil, Share2 } from 'lucide-react';
 import { Wod, SCHEME_LABELS, formatWodTime } from '@/types/wod';
 import { WodBuilder } from './WodBuilder';
 import { PRESET_WODS } from '@/data/presetWods';
+import { ShareModal } from './ShareModal';
 
 interface WodPanelProps {
   wods: Wod[];
@@ -18,6 +19,7 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
   const [editing, setEditing] = useState<Wod | null>(null);
   const [showBuilder, setShowBuilder] = useState(false);
   const [tab, setTab] = useState<WodTab>('mine');
+  const [sharing, setSharing] = useState<Wod | null>(null);
 
   if (showBuilder) {
     return (
@@ -99,6 +101,13 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                         <Play className="h-4 w-4" />
                       </button>
                       <button
+                        onClick={() => setSharing(wod)}
+                        className="p-2 text-neutral-400 transition-colors hover:text-white"
+                        title="Share WOD"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => { setEditing(wod); setShowBuilder(true); }}
                         className="p-2 text-neutral-400 transition-colors hover:text-white"
                         title="Edit WOD"
@@ -150,6 +159,13 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                     <Play className="h-4 w-4" />
                   </button>
                   <button
+                    onClick={() => setSharing(wod)}
+                    className="p-2 text-neutral-400 transition-colors hover:text-white"
+                    title="Share preset"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                  <button
                     onClick={() => onSave({ ...wod, id: '' })}
                     disabled={saved}
                     className="p-2 text-neutral-400 transition-colors hover:text-white disabled:text-neutral-700"
@@ -163,6 +179,8 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
           </motion.div>
         )}
       </AnimatePresence>
+
+      {sharing && <ShareModal wod={sharing} onClose={() => setSharing(null)} />}
     </motion.div>
   );
 };

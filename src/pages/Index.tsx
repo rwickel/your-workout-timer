@@ -17,6 +17,8 @@ import { AudioToggle } from '@/components/AudioToggle';
 import { WodPanel } from '@/components/WodPanel';
 import { WodRunner } from '@/components/WodRunner';
 import { HistoryPanel } from '@/components/HistoryPanel';
+import { WodImport } from '@/components/WodImport';
+import { decodeWod } from '@/lib/wodShare';
 
 type AppMode = 'intervals' | 'wod' | 'history';
 
@@ -33,6 +35,20 @@ const Index: React.FC = () => {
   const { favorites, addFavorite, removeFavorite } = useFavorites();
   const { wods, saveWod, deleteWod, addResult } = useWods();
   const { entries: history, addEntry, deleteEntry } = useHistory();
+
+  // Shared WOD import via URL (#/wod?d=...)
+  const [importWod, setImportWod] = useState<Wod | null>(null);
+  useEffect(() => {
+    const match = window.location.hash.match(/#\/wod\?d=([A-Za-z0-9\-_]+)/);
+    if (match) {
+      const decoded = decodeWod(match[1]);
+      if (decoded) setImportWod(decoded);
+      history_replaceState_clean();
+    }
+    function history_replaceState_clean() {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, []);
 
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
@@ -121,7 +137,16 @@ const Index: React.FC = () => {
   };
 
   // Mode tabs shown only on the config screen
-  const showModeTabs = showConfig && !activeWod;
+  const showModeTabs = showConfig && !activeWod && !importWod;
+
+  const handleImport = (wod: Wod, startNow: boolean) => {
+    saveWod(wod);
+    setImportWod(null);
+    if (startNow) {
+      setMode('wod');
+      setActiveWod(wod);
+    }
+  };
 
   // Record interval workout completion once
   const recordedRef = useRef(false);
@@ -144,6 +169,13 @@ const Index: React.FC = () => {
 
   return (
     <div className="flex min-h-full flex-col bg-black text-white mobile-safe">
+      {importWod && (
+        <WodImport
+          wod={importWod}
+          onImport={handleImport}
+          onDismiss={() => setImportWod(null)}
+        />
+      )}
       {/* Header */}
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-900 bg-black px-4">
         {!showConfig || activeWod ? (
