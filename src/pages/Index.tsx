@@ -36,17 +36,16 @@ const Index: React.FC = () => {
   const { wods, saveWod, deleteWod, addResult } = useWods();
   const { entries: history, addEntry, deleteEntry } = useHistory();
 
-  // Shared WOD import via URL (#/wod?d=...)
+  // Shared WOD import via URL — supports /wod?d=... and /#/wod?d=...
   const [importWod, setImportWod] = useState<Wod | null>(null);
   useEffect(() => {
-    const match = window.location.hash.match(/#\/wod\?d=([A-Za-z0-9\-_]+)/);
-    if (match) {
-      const decoded = decodeWod(match[1]);
+    const fromQuery = new URLSearchParams(window.location.search).get('d');
+    const hashMatch = window.location.hash.match(/#\/wod\?d=([A-Za-z0-9\-_]+)/);
+    const encoded = fromQuery ?? hashMatch?.[1];
+    if (encoded) {
+      const decoded = decodeWod(encoded);
       if (decoded) setImportWod(decoded);
-      history_replaceState_clean();
-    }
-    function history_replaceState_clean() {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.history.replaceState(null, '', window.location.pathname);
     }
   }, []);
 

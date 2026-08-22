@@ -57,7 +57,7 @@ export const decodeWod = (encoded: string): Wod | null => {
 };
 
 export const shareUrlFor = (wod: Wod): string =>
-  `${window.location.origin}${window.location.pathname}#/wod?d=${encodeWod(wod)}`;
+  `${window.location.origin}/wod?d=${encodeWod(wod)}`;
 
 export const whatsappUrlFor = (wod: Wod): string => {
   const movements = wod.movements.map(mv => `${mv.reps} ${mv.name}`).join('\n');
