@@ -18,6 +18,8 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
     Math.round((initial?.timeCapSeconds ?? DEFAULT_WOD.timeCapSeconds) / 60)
   );
   const [rounds, setRounds] = useState(initial?.rounds ?? DEFAULT_WOD.rounds);
+  const [roundSeconds, setRoundSeconds] = useState(initial?.roundSeconds ?? DEFAULT_WOD.roundSeconds ?? 60);
+  const [exerciseRest, setExerciseRest] = useState(initial?.exerciseRestSeconds ?? 30);
   const [movements, setMovements] = useState(initial?.movements ?? DEFAULT_WOD.movements);
 
   const updateMovement = (id: string, field: 'name' | 'reps', value: string) => {
@@ -43,13 +45,17 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
       name: name.trim(),
       scheme,
       timeCapSeconds: Math.max(1, timeCapMinutes) * 60,
+      roundSeconds,
+      exerciseRestSeconds: exerciseRest,
       rounds,
       movements: cleaned,
     });
   };
 
-  const showTimeCap = scheme !== 'rounds';
+  const showTimeCap = scheme === 'amrap' || scheme === 'fortime' || scheme === 'rounds';
   const showRounds = scheme === 'emom' || scheme === 'rounds';
+  const showRoundSeconds = scheme === 'emom';
+  const showExerciseRest = scheme === 'rounds';
 
   return (
     <motion.div
@@ -58,7 +64,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h3 className="section-label">New WOD</h3>
+        <h3 className="section-label">{initial ? 'Edit WOD' : 'New WOD'}</h3>
         <button onClick={onCancel} className="text-neutral-600 transition-colors hover:text-white">
           <X className="h-5 w-5" />
         </button>
@@ -115,7 +121,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
         )}
         {showRounds && (
           <div>
-            <p className="section-label">{scheme === 'emom' ? 'Minutes' : 'Rounds'}</p>
+            <p className="section-label">{scheme === 'emom' ? 'Rounds' : 'Rounds'}</p>
             <div className="mt-2 flex items-center gap-3">
               <button
                 onClick={() => setRounds(r => Math.max(1, r - 1))}
@@ -126,6 +132,46 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
               <span className="font-mono text-3xl font-bold text-white tabular">{rounds}</span>
               <button
                 onClick={() => setRounds(r => r + 1)}
+                className="text-neutral-400 transition-colors hover:text-white"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
+        {showRoundSeconds && (
+          <div>
+            <p className="section-label">Round Time (s)</p>
+            <div className="mt-2 flex items-center gap-3">
+              <button
+                onClick={() => setRoundSeconds(s => Math.max(10, s - 5))}
+                className="text-neutral-400 transition-colors hover:text-white"
+              >
+                −
+              </button>
+              <span className="font-mono text-3xl font-bold text-white tabular">{roundSeconds}</span>
+              <button
+                onClick={() => setRoundSeconds(s => s + 5)}
+                className="text-neutral-400 transition-colors hover:text-white"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
+        {showExerciseRest && (
+          <div>
+            <p className="section-label">Rest Between Exercises (s)</p>
+            <div className="mt-2 flex items-center gap-3">
+              <button
+                onClick={() => setExerciseRest(s => Math.max(0, s - 5))}
+                className="text-neutral-400 transition-colors hover:text-white"
+              >
+                −
+              </button>
+              <span className="font-mono text-3xl font-bold text-white tabular">{exerciseRest}</span>
+              <button
+                onClick={() => setExerciseRest(s => s + 5)}
                 className="text-neutral-400 transition-colors hover:text-white"
               >
                 +

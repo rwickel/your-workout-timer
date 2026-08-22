@@ -10,7 +10,9 @@ export interface Wod {
   id: string;
   name: string;
   scheme: WodScheme;
-  timeCapSeconds: number; // used by amrap, fortime, emom
+  timeCapSeconds: number; // used by amrap, fortime
+  roundSeconds?: number; // EMOM: length of one round (default 60)
+  exerciseRestSeconds?: number; // Rounds: rest between exercises (default 30)
   rounds: number; // used by emom, rounds
   movements: WodMovement[];
 }
@@ -36,6 +38,7 @@ export const DEFAULT_WOD: Wod = {
   name: '',
   scheme: 'amrap',
   timeCapSeconds: 20 * 60,
+  roundSeconds: 60,
   rounds: 5,
   movements: [
     { id: 'm1', name: 'Pull-Ups', reps: 5 },

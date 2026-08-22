@@ -7,6 +7,7 @@ import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
 import { useAudio } from '@/hooks/useAudio';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useWods } from '@/hooks/useWods';
+import { useHistory } from '@/hooks/useHistory';
 import { TimerDisplay } from '@/components/TimerDisplay';
 import { TimerControls } from '@/components/TimerControls';
 import { ConfigCard } from '@/components/ConfigCard';
@@ -15,8 +16,9 @@ import { FavoritesPanel } from '@/components/FavoritesPanel';
 import { AudioToggle } from '@/components/AudioToggle';
 import { WodPanel } from '@/components/WodPanel';
 import { WodRunner } from '@/components/WodRunner';
+import { HistoryPanel } from '@/components/HistoryPanel';
 
-type AppMode = 'intervals' | 'wod';
+type AppMode = 'intervals' | 'wod' | 'history';
 
 const Index: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('intervals');
@@ -30,6 +32,7 @@ const Index: React.FC = () => {
   const audio = useAudio();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
   const { wods, saveWod, deleteWod, addResult } = useWods();
+  const { entries: history, addEntry, deleteEntry } = useHistory();
 
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
@@ -120,6 +123,25 @@ const Index: React.FC = () => {
   // Mode tabs shown only on the config screen
   const showModeTabs = showConfig && !activeWod;
 
+  // Record interval workout completion once
+  const recordedRef = useRef(false);
+  useEffect(() => {
+    if (timer.state.phase === 'complete' && !recordedRef.current) {
+      recordedRef.current = true;
+      addEntry({
+        source: 'interval',
+        title: `${config.workTime}s/${config.pauseTime}s × ${config.rounds}`,
+        scheme: 'interval',
+        finishedAt: Date.now(),
+        timeSeconds: timer.state.totalElapsed,
+        roundsCompleted: config.rounds,
+      });
+    }
+    if (timer.state.phase !== 'complete') {
+      recordedRef.current = false;
+    }
+  }, [timer.state.phase, addEntry]);
+
   return (
     <div className="flex min-h-full flex-col bg-black text-white mobile-safe">
       {/* Header */}
@@ -151,7 +173,7 @@ const Index: React.FC = () => {
           {/* Mode Tabs */}
           {showModeTabs && (
             <div className="mb-6 flex gap-6">
-              {(['intervals', 'wod'] as AppMode[]).map(m => (
+              {(['intervals', 'wod', 'history'] as AppMode[]).map(m => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
@@ -161,7 +183,7 @@ const Index: React.FC = () => {
                       : 'border-b border-transparent text-neutral-600 hover:text-neutral-400'
                   }`}
                 >
-                  {m === 'intervals' ? 'Intervals' : 'WOD'}
+                  {m === 'intervals' ? 'Intervals' : m === 'wod' ? 'WOD' : 'History'}
                 </button>
               ))}
             </div>
@@ -183,7 +205,7 @@ const Index: React.FC = () => {
                   onExit={() => setActiveWod(null)}
                 />
               </motion.div>
-            ) : !showConfig ? (
+            ) : showConfig ? (
               <motion.div
                 key="config"
                 initial={{ opacity: 0 }}
@@ -212,7 +234,7 @@ const Index: React.FC = () => {
                       Start Workout
                     </motion.button>
                   </>
-                ) : (
+                ) : mode === 'wod' ? (
                   <>
                     <WodPanel
                       wods={wods}
@@ -221,6 +243,8 @@ const Index: React.FC = () => {
                       onDelete={deleteWod}
                     />
                   </>
+                ) : (
+                  <HistoryPanel entries={history} onDelete={deleteEntry} />
                 )}
               </motion.div>
             ) : (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Trash2, Plus } from 'lucide-react';
+import { Play, Trash2, Plus, Pencil } from 'lucide-react';
 import { Wod, SCHEME_LABELS, formatWodTime } from '@/types/wod';
 import { WodBuilder } from './WodBuilder';
 
@@ -12,13 +12,15 @@ interface WodPanelProps {
 }
 
 export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDelete }) => {
+  const [editing, setEditing] = useState<Wod | null>(null);
   const [showBuilder, setShowBuilder] = useState(false);
 
   if (showBuilder) {
     return (
       <WodBuilder
-        onSave={(wod) => { onSave(wod); setShowBuilder(false); }}
-        onCancel={() => setShowBuilder(false)}
+        initial={editing}
+        onSave={(wod) => { onSave(wod); setShowBuilder(false); setEditing(null); }}
+        onCancel={() => { setShowBuilder(false); setEditing(null); }}
       />
     );
   }
@@ -28,7 +30,7 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
       <div className="flex items-center justify-between">
         <h3 className="section-label">My WODs</h3>
         <button
-          onClick={() => setShowBuilder(true)}
+          onClick={() => { setEditing(null); setShowBuilder(true); }}
           className="flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-white"
         >
           <Plus className="h-4 w-4" />
@@ -67,6 +69,13 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                   title="Start WOD"
                 >
                   <Play className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => { setEditing(wod); setShowBuilder(true); }}
+                  className="p-2 text-neutral-400 transition-colors hover:text-white"
+                  title="Edit WOD"
+                >
+                  <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => onDelete(wod.id)}
