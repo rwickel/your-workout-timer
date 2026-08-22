@@ -2,25 +2,34 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import { TimerConfig, DEFAULT_CONFIG, TimerPhase } from '@/types/timer';
+import { Wod } from '@/types/wod';
 import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
 import { useAudio } from '@/hooks/useAudio';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useWods } from '@/hooks/useWods';
 import { TimerDisplay } from '@/components/TimerDisplay';
 import { TimerControls } from '@/components/TimerControls';
 import { ConfigCard } from '@/components/ConfigCard';
 import { WorkoutSummary } from '@/components/WorkoutSummary';
 import { FavoritesPanel } from '@/components/FavoritesPanel';
 import { AudioToggle } from '@/components/AudioToggle';
+import { WodPanel } from '@/components/WodPanel';
+import { WodRunner } from '@/components/WodRunner';
+
+type AppMode = 'intervals' | 'wod';
 
 const Index: React.FC = () => {
+  const [mode, setMode] = useState<AppMode>('intervals');
   const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
   const [showConfig, setShowConfig] = useState(true);
+  const [activeWod, setActiveWod] = useState<Wod | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [audioVolume, setAudioVolume] = useState(1);
 
   const timer = useWorkoutTimer(config);
   const audio = useAudio();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
+  const { wods, saveWod, deleteWod, addResult } = useWods();
 
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
@@ -108,13 +117,16 @@ const Index: React.FC = () => {
     setAudioVolume(volume);
   };
 
+  // Mode tabs shown only on the config screen
+  const showModeTabs = showConfig && !activeWod;
+
   return (
     <div className="flex min-h-full flex-col bg-black text-white mobile-safe">
       {/* Header */}
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-900 bg-black px-4">
-        {!showConfig ? (
+        {!showConfig || activeWod ? (
           <button
-            onClick={handleBackToConfig}
+            onClick={() => { if (activeWod) setActiveWod(null); else handleBackToConfig(); }}
             className="flex items-center gap-1 font-bold text-neutral-400 transition-colors hover:text-white"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -136,8 +148,42 @@ const Index: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="mx-auto max-w-lg p-4">
+          {/* Mode Tabs */}
+          {showModeTabs && (
+            <div className="mb-6 flex gap-6">
+              {(['intervals', 'wod'] as AppMode[]).map(m => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`pb-2 text-sm font-medium uppercase tracking-widest transition-colors ${
+                    mode === m
+                      ? 'border-b border-white text-white'
+                      : 'border-b border-transparent text-neutral-600 hover:text-neutral-400'
+                  }`}
+                >
+                  {m === 'intervals' ? 'Intervals' : 'WOD'}
+                </button>
+              ))}
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
-            {showConfig ? (
+            {activeWod ? (
+              /* WOD Runner */
+              <motion.div
+                key="wod-runner"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center"
+              >
+                <WodRunner
+                  wod={activeWod}
+                  onFinish={(result) => { addResult(result); setActiveWod(null); }}
+                  onExit={() => setActiveWod(null)}
+                />
+              </motion.div>
+            ) : !showConfig ? (
               <motion.div
                 key="config"
                 initial={{ opacity: 0 }}
@@ -145,24 +191,37 @@ const Index: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="space-y-6 pb-8"
               >
-                <ConfigCard config={config} onChange={setConfig} />
-                <WorkoutSummary config={config} />
+                {mode === 'intervals' ? (
+                  <>
+                    <ConfigCard config={config} onChange={setConfig} />
+                    <WorkoutSummary config={config} />
 
-                <FavoritesPanel
-                  favorites={favorites}
-                  currentConfig={config}
-                  onSelect={handleLoadFavorite}
-                  onSave={addFavorite}
-                  onDelete={removeFavorite}
-                />
+                    <FavoritesPanel
+                      favorites={favorites}
+                      currentConfig={config}
+                      onSelect={handleLoadFavorite}
+                      onSave={addFavorite}
+                      onDelete={removeFavorite}
+                    />
 
-                <motion.button
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleStartWorkout}
-                  className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
-                >
-                  Start Workout
-                </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleStartWorkout}
+                      className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
+                    >
+                      Start Workout
+                    </motion.button>
+                  </>
+                ) : (
+                  <>
+                    <WodPanel
+                      wods={wods}
+                      onStart={(wod) => setActiveWod(wod)}
+                      onSave={saveWod}
+                      onDelete={deleteWod}
+                    />
+                  </>
+                )}
               </motion.div>
             ) : (
               <motion.div
