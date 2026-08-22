@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Trash2, Plus, Pencil } from 'lucide-react';
 import { Wod, SCHEME_LABELS, formatWodTime } from '@/types/wod';
 import { WodBuilder } from './WodBuilder';
+import { PRESET_WODS } from '@/data/presetWods';
 
 interface WodPanelProps {
   wods: Wod[];
@@ -89,6 +90,46 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
           </AnimatePresence>
         </div>
       )}
+
+      {/* Presets: famous bodyweight WODs */}
+      <div className="border-t border-neutral-900 pt-6">
+        <h3 className="section-label mb-3">Famous WODs</h3>
+        <div className="space-y-1">
+          {PRESET_WODS.map(wod => {
+            const saved = wods.some(w => w.name === wod.name);
+            return (
+              <div key={wod.id} className="flex items-center gap-3 border-b border-neutral-900 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-white">{wod.name}</p>
+                  <p className="text-xs text-neutral-400 tabular">
+                    {SCHEME_LABELS[wod.scheme]}
+                    {wod.scheme === 'amrap' && ` · ${formatWodTime(wod.timeCapSeconds)}`}
+                    {(wod.scheme === 'emom' || wod.scheme === 'rounds') && ` · ${wod.rounds} rounds`}
+                    {' · '}
+                    {wod.movements.slice(0, 3).map(m => `${m.reps} ${m.name}`).join(', ')}
+                    {wod.movements.length > 3 && ' …'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onStart({ ...wod, id: '' })}
+                  className="p-2 text-neutral-400 transition-colors hover:text-white"
+                  title="Start preset"
+                >
+                  <Play className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => onSave({ ...wod, id: '' })}
+                  disabled={saved}
+                  className="p-2 text-neutral-400 transition-colors hover:text-white disabled:text-neutral-700"
+                  title={saved ? 'Already in My WODs' : 'Add to My WODs'}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </motion.div>
   );
 };
