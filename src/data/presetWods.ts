@@ -91,4 +91,52 @@ export const PRESET_WODS: Wod[] = [
   mk('p-muscleups', '30 Muscle-Ups', 'fortime', 45 * 60, 1, [
     ['Muscle-Ups', 30],
   ]),
+  // --- Calisthenics WODs ---
+  mk('p-dips100', '100 Dips', 'fortime', 30 * 60, 1, [
+    ['Dips', 100],
+  ]),
+  mk('p-hlr50', '50 Hanging Leg Raises', 'fortime', 20 * 60, 1, [
+    ['Hanging Leg Raises', 50],
+  ]),
+  mk('p-core-crusher', 'Core Crusher', 'amrap', 15 * 60, 1, [
+    ['Hanging Leg Raises', 10],
+    ['Sit-Ups', 15],
+    ['Plank Shoulder Taps', 20],
+  ]),
+  mk('p-gymnastique', 'Gymnastique', 'rounds', 40 * 60, 5, [
+    ['Muscle-Ups', 3],
+    ['Dips', 15],
+    ['Hanging Leg Raises', 15],
+    ['Pistol Squats', 10],
+  ], undefined, 90),
+  mk('p-handstand', 'Handstand Heaven', 'amrap', 12 * 60, 1, [
+    ['Handstand Push-Ups', 5],
+    ['Handstand Hold (s)', 30],
+    ['Push-Ups', 15],
+  ]),
+  mk('p-upside-down', 'Upside Down', 'fortime', 25 * 60, 1, [
+    ['Upside Down Deadlifts', 20],
+    ['Wall Handstand Push-Ups', 20],
+    ['Hanging Leg Raises', 20],
+    ['Air Squats', 40],
+  ]),
+  mk('p-bar-dips-emom', 'EMOM Bar Dips', 'emom', 12 * 60, 12, [
+    ['Bar Dips', 12],
+  ], 60),
+  mk('p-street-workout', 'Street Workout', 'amrap', 16 * 60, 1, [
+    ['Pull-Ups', 8],
+    ['Dips', 12],
+    ['Jump Squats', 16],
+    ['Hanging Leg Raises', 10],
+  ]),
+  mk('p-l-sit-ladder', 'L-Sit Ladder', 'rounds', 30 * 60, 5, [
+    ['L-Sit Hold (s)', 10],
+    ['Dips', 10],
+    ['Hollow Body Hold (s)', 20],
+  ], undefined, 60),
+  mk('p-pullup-dip-grinder', 'Pull-Up & Dip Grinder', 'fortime', 35 * 60, 1, [
+    ['Pull-Ups', 50],
+    ['Dips', 75],
+    ['Hanging Leg Raises', 50],
+  ]),
 ];
