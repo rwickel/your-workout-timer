@@ -201,7 +201,18 @@ const Index: React.FC = () => {
               >
                 <WodRunner
                   wod={activeWod}
-                  onFinish={(result) => { addResult(result); setActiveWod(null); }}
+                  onFinish={(result) => {
+                    addResult(result);
+                    addEntry({
+                      source: 'wod',
+                      title: result.wodName || result.scheme,
+                      scheme: result.scheme,
+                      finishedAt: result.finishedAt,
+                      timeSeconds: result.timeSeconds,
+                      roundsCompleted: result.roundsCompleted,
+                    });
+                    setActiveWod(null);
+                  }}
                   onExit={() => setActiveWod(null)}
                 />
               </motion.div>
