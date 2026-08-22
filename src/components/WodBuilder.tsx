@@ -11,6 +11,57 @@ interface WodBuilderProps {
 
 const SCHEMES: WodScheme[] = ['amrap', 'fortime', 'emom', 'rounds'];
 
+/* Stepper with −/+ buttons and a directly editable value */
+const EditableStepper: React.FC<{
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  step: number;
+  size?: 'lg' | 'sm';
+}> = ({ value, onChange, min, step, size = 'lg' }) => {
+  const [draft, setDraft] = useState<string | null>(null);
+  const display = draft ?? String(value);
+
+  const commit = () => {
+    if (draft !== null) {
+      const n = parseInt(draft, 10);
+      if (!isNaN(n)) onChange(Math.max(min, n));
+      setDraft(null);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={() => onChange(Math.max(min, value - step))}
+        className="text-neutral-400 transition-colors hover:text-white"
+        aria-label="Decrease"
+      >
+        −
+      </button>
+      <input
+        type="text"
+        inputMode="numeric"
+        value={display}
+        onChange={(e) => setDraft(e.target.value.replace(/[^0-9-]/g, ''))}
+        onBlur={commit}
+        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+        className={`w-16 bg-transparent text-center font-mono font-bold text-white tabular focus:outline-none focus:text-neutral-300 ${
+          size === 'lg' ? 'text-3xl' : 'text-xl'
+        }`}
+        aria-label="Value"
+      />
+      <button
+        onClick={() => onChange(value + step)}
+        className="text-neutral-400 transition-colors hover:text-white"
+        aria-label="Increase"
+      >
+        +
+      </button>
+    </div>
+  );
+};
+
 export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initial }) => {
   const [name, setName] = useState(initial?.name ?? '');
   const [scheme, setScheme] = useState<WodScheme>(initial?.scheme ?? DEFAULT_WOD.scheme);
@@ -102,80 +153,32 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
         {showTimeCap && (
           <div>
             <p className="section-label">{scheme === 'fortime' ? 'Time Cap (min)' : 'Duration (min)'}</p>
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                onClick={() => setTimeCapMinutes(m => Math.max(1, m - 1))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                −
-              </button>
-              <span className="font-mono text-3xl font-bold text-white tabular">{timeCapMinutes}</span>
-              <button
-                onClick={() => setTimeCapMinutes(m => m + 1)}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                +
-              </button>
+            <div className="mt-2">
+              <EditableStepper value={timeCapMinutes} onChange={setTimeCapMinutes} min={1} step={1} />
             </div>
           </div>
         )}
         {showRounds && (
           <div>
-            <p className="section-label">{scheme === 'emom' ? 'Rounds' : 'Rounds'}</p>
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                onClick={() => setRounds(r => Math.max(1, r - 1))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                −
-              </button>
-              <span className="font-mono text-3xl font-bold text-white tabular">{rounds}</span>
-              <button
-                onClick={() => setRounds(r => r + 1)}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                +
-              </button>
+            <p className="section-label">Rounds</p>
+            <div className="mt-2">
+              <EditableStepper value={rounds} onChange={setRounds} min={1} step={1} />
             </div>
           </div>
         )}
         {showRoundSeconds && (
           <div>
             <p className="section-label">Round Time (s)</p>
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                onClick={() => setRoundSeconds(s => Math.max(10, s - 5))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                −
-              </button>
-              <span className="font-mono text-3xl font-bold text-white tabular">{roundSeconds}</span>
-              <button
-                onClick={() => setRoundSeconds(s => s + 5)}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                +
-              </button>
+            <div className="mt-2">
+              <EditableStepper value={roundSeconds} onChange={v => setRoundSeconds(Math.max(10, v))} min={10} step={5} />
             </div>
           </div>
         )}
         {showExerciseRest && (
           <div>
             <p className="section-label">Rest Between Exercises (s)</p>
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                onClick={() => setExerciseRest(s => Math.max(0, s - 5))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                −
-              </button>
-              <span className="font-mono text-3xl font-bold text-white tabular">{exerciseRest}</span>
-              <button
-                onClick={() => setExerciseRest(s => s + 5)}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                +
-              </button>
+            <div className="mt-2">
+              <EditableStepper value={exerciseRest} onChange={setExerciseRest} min={0} step={5} />
             </div>
           </div>
         )}
@@ -193,20 +196,14 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
               placeholder="Movement..."
               className="min-w-0 flex-1 rounded-md border border-neutral-900 bg-transparent px-3 py-2 text-white placeholder:text-neutral-600 focus:border-neutral-400 focus:outline-none"
             />
-            <div className="flex items-center gap-2 rounded-md border border-neutral-900 px-2 py-1.5">
-              <button
-                onClick={() => updateMovement(m.id, 'reps', String(m.reps - 1))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                −
-              </button>
-              <span className="w-8 text-center font-mono font-bold text-white tabular">{m.reps}</span>
-              <button
-                onClick={() => updateMovement(m.id, 'reps', String(m.reps + 1))}
-                className="text-neutral-400 transition-colors hover:text-white"
-              >
-                +
-              </button>
+            <div className="rounded-md border border-neutral-900 px-1 py-0.5">
+              <EditableStepper
+                value={m.reps}
+                onChange={(v) => updateMovement(m.id, 'reps', String(v))}
+                min={1}
+                step={1}
+                size="sm"
+              />
             </div>
             <button
               onClick={() => removeMovement(m.id)}
