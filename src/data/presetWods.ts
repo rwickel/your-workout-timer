@@ -79,4 +79,16 @@ export const PRESET_WODS: Wod[] = [
   mk('p-emom10', 'EMOM 10 Burpees', 'emom', 10 * 60, 10, [
     ['Burpees', 10],
   ], 60),
+  mk('p-squats200', '200 Air Squats', 'fortime', 30 * 60, 1, [
+    ['Air Squats', 200],
+  ]),
+  mk('p-angie', 'Angie', 'fortime', 60 * 60, 1, [
+    ['Pull-Ups', 100],
+    ['Push-Ups', 100],
+    ['Sit-Ups', 100],
+    ['Air Squats', 100],
+  ]),
+  mk('p-muscleups', '30 Muscle-Ups', 'fortime', 45 * 60, 1, [
+    ['Muscle-Ups', 30],
+  ]),
 ];
