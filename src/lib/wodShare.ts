@@ -56,8 +56,11 @@ export const decodeWod = (encoded: string): Wod | null => {
   }
 };
 
+// Network address used for shared links (reachable from other devices on the LAN)
+const SHARE_ORIGIN = 'http://192.168.1.20:8081';
+
 export const shareUrlFor = (wod: Wod): string =>
-  `${window.location.origin}/wod?d=${encodeWod(wod)}`;
+  `${SHARE_ORIGIN}/wod?d=${encodeWod(wod)}`;
 
 export const whatsappUrlFor = (wod: Wod): string => {
   const movements = wod.movements.map(mv => `${mv.reps} ${mv.name}`).join('\n');
