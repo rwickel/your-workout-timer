@@ -40,7 +40,7 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
         </div>
 
         <div className="space-y-3">
-          {canInstall && (
+          {canInstall ? (
             <button
               onClick={promptInstall}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:border-neutral-400"
@@ -48,6 +48,10 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
               <Download className="h-4 w-4" />
               Install App
             </button>
+          ) : (
+            <p className="text-[11px] leading-relaxed text-neutral-600">
+              Install manually: Chrome menu (⋮) → "Add to Home screen"
+            </p>
           )}
           <button
             onClick={() => { setAdded(true); setTimeout(() => onImport(wod, false), 600); }}
