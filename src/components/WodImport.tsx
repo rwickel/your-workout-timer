@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import { Wod, SCHEME_LABELS } from '@/types/wod';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 interface WodImportProps {
   wod: Wod;
@@ -10,6 +11,7 @@ interface WodImportProps {
 
 export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }) => {
   const [added, setAdded] = useState(false);
+  const { canInstall, promptInstall } = useInstallPrompt();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
@@ -38,6 +40,15 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
         </div>
 
         <div className="space-y-3">
+          {canInstall && (
+            <button
+              onClick={promptInstall}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:border-neutral-400"
+            >
+              <Download className="h-4 w-4" />
+              Install App
+            </button>
+          )}
           <button
             onClick={() => { setAdded(true); setTimeout(() => onImport(wod, false), 600); }}
             disabled={added}
