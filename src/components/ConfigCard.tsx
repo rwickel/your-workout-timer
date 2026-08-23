@@ -143,18 +143,18 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             ))}
           </div>
         )}
-        <button
-          onClick={addExercise}
-          className="flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-white active:scale-[0.98]"
-        >
-          <Plus className="h-4 w-4" />
-          Add Exercise
-        </button>
         {exercises.length > 0 && (
           <p className="text-xs text-neutral-600">
             Each round runs all exercises with their own settings.
           </p>
         )}
+        <button
+          onClick={addExercise}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-800 text-sm text-neutral-400 transition-colors duration-150 hover:border-neutral-400 hover:text-white active:scale-[0.98]"
+        >
+          <Plus className="h-4 w-4" />
+          Add Exercise
+        </button>
       </div>
 
       {/* Rest */}
