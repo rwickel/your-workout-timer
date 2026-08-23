@@ -61,16 +61,15 @@ const Index: React.FC = () => {
   useEffect(() => {
     const currentPhase = timer.state.phase;
     const currentTime = timer.state.timeRemaining;
+    const currentRound = timer.state.currentRound;
+    const curExTop = config.exercises && config.exercises.length > 0
+      ? config.exercises[timer.state.currentExercise]
+      : null;
 
     if (prevPhaseRef.current !== currentPhase && currentPhase !== 'idle') {
       audio.playPhaseChange(currentPhase);
 
-      // Voice announcement per phase change — pauseDuration is per current exercise
-      const currentRound = timer.state.currentRound;
-      const curEx = config.exercises && config.exercises.length > 0
-        ? config.exercises[timer.state.currentExercise]
-        : null;
-      const pauseDuration = curEx
+      const pauseDuration = curExTop
         ? Math.max(0, (curEx.pauseTime ?? config.pauseTime) + (curEx.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
         : Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1));
 
@@ -121,9 +120,9 @@ const Index: React.FC = () => {
       // Voice countdown before each work phase (preparation & rest: 10, 9, 8...)
       const isPreWork = currentPhase === 'preparation' || currentPhase === 'pause';
       // When rest time is 0, the 10-count happens at the end of the ongoing work phase
-      const roundsForCurEx = curEx ? (curEx.rounds ?? config.rounds) : config.rounds;
-      const restForCurEx = curEx
-        ? Math.max(0, (curEx.pauseTime ?? config.pauseTime) + (curEx.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
+      const roundsForCurEx = curExTop ? (curExTop.rounds ?? config.rounds) : config.rounds;
+      const restForCurEx = curExTop
+        ? Math.max(0, (curExTop.pauseTime ?? config.pauseTime) + (curExTop.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
         : Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1));
       const restIsSkipped =
         currentPhase === 'work' &&
