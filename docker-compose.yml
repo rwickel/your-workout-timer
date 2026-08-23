@@ -1,0 +1,7 @@
+services:
+  workout-timer:
+    build: .
+    container_name: workout-timer
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
