@@ -188,14 +188,16 @@ const Index: React.FC = () => {
         ) : (
           <div />
         )}
-        <div className="ml-auto flex items-center gap-2">
-          <AudioToggle
-            enabled={audioEnabled}
-            onToggle={toggleAudio}
-            volume={audioVolume}
-            onVolumeChange={handleVolumeChange}
-          />
-        </div>
+        {!activeWod && (
+          <div className="ml-auto flex items-center gap-2">
+            <AudioToggle
+              enabled={audioEnabled}
+              onToggle={toggleAudio}
+              volume={audioVolume}
+              onVolumeChange={handleVolumeChange}
+            />
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
