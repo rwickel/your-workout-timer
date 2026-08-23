@@ -163,59 +163,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
         value={config.pauseTime}
         onChange={(v) => updateField('pauseTime', v)}
       />
-
-      <div className="border-t border-neutral-900" />
-
-      {/* Rounds */}
-      <div className="space-y-4">
-        <NumberInput
-          label="Number of Rounds"
-          value={config.rounds}
-          onChange={(v) => updateField('rounds', v)}
-          min={1}
-          max={99}
-        />
-      </div>
-
-      <div className="border-t border-neutral-900" />
-
-      {/* Progressive Adjustments */}
-      <div className="space-y-4">
-        <h3 className="section-label">Progressive Adjustment</h3>
-        <p className="text-sm text-neutral-400">
-          Add or subtract seconds each round (e.g. +2 gives 2s, 4s, 6s …)
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <NumberInput
-            label="Work Adj. (+s/Round)"
-            value={config.workAdjustment}
-            onChange={(v) => updateField('workAdjustment', v)}
-            min={-30}
-            max={30}
-            suffix="s"
-            showSign
-          />
-          <NumberInput
-            label="Rest Adj. (+s/Round)"
-            value={config.restAdjustment}
-            onChange={(v) => updateField('restAdjustment', v)}
-            min={-30}
-            max={30}
-            suffix="s"
-            showSign
-          />
-        </div>
-        <p className="text-xs text-neutral-500 tabular">
-          {ladderPreview(
-            config.workTime,
-            config.pauseTime,
-            config.workAdjustment,
-            config.restAdjustment,
-            config.rounds
-          )}
-        </p>
-      </div>
     </motion.div>
   );
 };
