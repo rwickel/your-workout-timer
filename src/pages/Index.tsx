@@ -154,7 +154,9 @@ const Index: React.FC = () => {
       recordedRef.current = true;
       addEntry({
         source: 'interval',
-        title: `${config.workTime}s/${config.pauseTime}s × ${config.rounds}`,
+        title: config.exerciseName?.trim()
+          ? `${config.exerciseName.trim()} (${config.workTime}s/${config.pauseTime}s × ${config.rounds})`
+          : `${config.workTime}s/${config.pauseTime}s × ${config.rounds}`,
         scheme: 'interval',
         finishedAt: Date.now(),
         timeSeconds: timer.state.totalElapsed,
@@ -303,7 +305,7 @@ const Index: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-12"
               >
-                <TimerDisplay state={timer.state} totalRounds={config.rounds} />
+                <TimerDisplay state={timer.state} totalRounds={config.rounds} exerciseName={config.exerciseName} />
                 <TimerControls
                   state={timer.state}
                   onStart={timer.start}

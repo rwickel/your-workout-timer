@@ -1,4 +1,5 @@
 export interface TimerConfig {
+  exerciseName?: string; // optional label shown during the workout
   workTime: number; // in seconds
   pauseTime: number; // in seconds
   preparationTime: number; // in seconds

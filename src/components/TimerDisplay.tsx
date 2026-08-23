@@ -6,6 +6,7 @@ import { formatTime } from '@/types/timer';
 interface TimerDisplayProps {
   state: TimerState;
   totalRounds: number;
+  exerciseName?: string;
 }
 
 const phaseLabels: Record<string, string> = {
@@ -16,11 +17,16 @@ const phaseLabels: Record<string, string> = {
   complete: 'Complete',
 };
 
-export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds }) => {
+export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, exerciseName }) => {
   const isLowTime = state.timeRemaining <= 3 && state.timeRemaining > 0 && state.phase !== 'complete';
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 px-4">
+      {/* Exercise Name */}
+      {exerciseName && state.phase !== 'complete' && (
+        <p className="text-lg font-bold text-white">{exerciseName}</p>
+      )}
+
       {/* Phase Label */}
       <AnimatePresence mode="wait">
         <motion.span

@@ -20,8 +20,16 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
       animate={{ opacity: 1 }}
       className="space-y-8"
     >
-      {/* Timer Durations */}
+      {/* Exercise */}
       <div className="space-y-4">
+        <input
+          type="text"
+          value={config.exerciseName ?? ''}
+          onChange={(e) => updateField('exerciseName', e.target.value)}
+          placeholder="Exercise (optional)..."
+          className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
+        />
+
         <TimeInput
           label="Work Time"
           value={config.workTime}
