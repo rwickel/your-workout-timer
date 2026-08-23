@@ -70,7 +70,7 @@ const Index: React.FC = () => {
       audio.playPhaseChange(currentPhase);
 
       const pauseDuration = curExTop
-        ? Math.max(0, (curEx.pauseTime ?? config.pauseTime) + (curEx.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
+        ? Math.max(0, (curExTop.pauseTime ?? config.pauseTime) + (curExTop.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
         : Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1));
 
       switch (currentPhase) {
