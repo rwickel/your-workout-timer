@@ -17,6 +17,18 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
 
   const exercises = config.exercises ?? [];
 
+  // Ladder preview: e.g. "R1 2/2 · R2 4/4 · R3 6/6"
+  const formatSec = (s: number) => `${Math.max(0, s)}s`;
+  const ladderPreview = (work: number, rest: number, workAdj: number, restAdj: number, maxRound: number) => {
+    const roundsToShow = Math.min(3, maxRound);
+    const parts = Array.from({ length: roundsToShow }, (_, i) => {
+      const r = i + 1;
+      return `R${r} ${formatSec(work + workAdj * (r - 1))}/${formatSec(rest + restAdj * (r - 1))}`;
+    });
+    if (maxRound > roundsToShow) parts.push('…');
+    return parts.join(' · ');
+  };
+
   const addExercise = () => {
     updateField('exercises', [
       ...exercises,
@@ -93,7 +105,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <NumberInput
-                    label="Work Adj."
+                    label="Work Adj. (+s/Round)"
                     value={ex.workAdjustment ?? config.workAdjustment}
                     onChange={(v) => updateExercise(ex.id, 'workAdjustment', String(v))}
                     min={-30}
@@ -102,7 +114,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                     showSign
                   />
                   <NumberInput
-                    label="Rest Adj."
+                    label="Rest Adj. (+s/Round)"
                     value={ex.restAdjustment ?? config.restAdjustment}
                     onChange={(v) => updateExercise(ex.id, 'restAdjustment', String(v))}
                     min={-30}
@@ -111,6 +123,15 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                     showSign
                   />
                 </div>
+                <p className="text-xs text-neutral-500 tabular">
+                  {ladderPreview(
+                    ex.workTime,
+                    ex.pauseTime ?? config.pauseTime,
+                    ex.workAdjustment ?? config.workAdjustment,
+                    ex.restAdjustment ?? config.restAdjustment,
+                    config.rounds
+                  )}
+                </p>
               </div>
             ))}
           </div>
@@ -155,12 +176,12 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
       <div className="space-y-4">
         <h3 className="section-label">Progressive Adjustment</h3>
         <p className="text-sm text-neutral-400">
-          Adjust rest/prep time each round (use negative to decrease)
+          Add or subtract seconds each round (e.g. +2 gives 2s, 4s, 6s …)
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <NumberInput
-            label="Work Adj."
+            label="Work Adj. (+s/Round)"
             value={config.workAdjustment}
             onChange={(v) => updateField('workAdjustment', v)}
             min={-30}
@@ -169,7 +190,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             showSign
           />
           <NumberInput
-            label="Rest Adj."
+            label="Rest Adj. (+s/Round)"
             value={config.restAdjustment}
             onChange={(v) => updateField('restAdjustment', v)}
             min={-30}
@@ -178,6 +199,15 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             showSign
           />
         </div>
+        <p className="text-xs text-neutral-500 tabular">
+          {ladderPreview(
+            config.workTime,
+            config.pauseTime,
+            config.workAdjustment,
+            config.restAdjustment,
+            config.rounds
+          )}
+        </p>
       </div>
     </motion.div>
   );
