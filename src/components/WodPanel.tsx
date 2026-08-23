@@ -51,7 +51,7 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
         {tab === 'mine' && (
           <button
             onClick={() => { setEditing(null); setShowBuilder(true); }}
-            className="ml-auto flex items-center self-start gap-1 text-sm text-neutral-400 transition-colors hover:text-white"
+            className="ml-auto flex min-h-[44px] items-center self-start gap-1 rounded-lg text-sm text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             New WOD
@@ -69,7 +69,7 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
             exit={{ opacity: 0 }}
           >
             {wods.length === 0 ? (
-              <p className="py-2 text-sm text-neutral-600">
+              <p className="px-2 py-8 text-center text-base text-neutral-600">
                 No WODs yet. Create one or add a famous WOD.
               </p>
             ) : (
@@ -95,28 +95,28 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                       </div>
                       <button
                         onClick={() => onStart(wod)}
-                        className="p-2 text-neutral-400 transition-colors hover:text-white"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
                         title="Start WOD"
                       >
                         <Play className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setSharing(wod)}
-                        className="p-2 text-neutral-400 transition-colors hover:text-white"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
                         title="Share WOD"
                       >
                         <Share2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => { setEditing(wod); setShowBuilder(true); }}
-                        className="p-2 text-neutral-400 transition-colors hover:text-white"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
                         title="Edit WOD"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => onDelete(wod.id)}
-                        className="p-2 text-neutral-600 transition-colors hover:text-white"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 active:scale-[0.98] hover:text-white"
                         title="Delete WOD"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -153,14 +153,14 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                   </div>
                   <button
                     onClick={() => onStart({ ...wod, id: '' })}
-                    className="p-2 text-neutral-400 transition-colors hover:text-white"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
                     title="Start preset"
                   >
                     <Play className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setSharing(wod)}
-                    className="p-2 text-neutral-400 transition-colors hover:text-white"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
                     title="Share preset"
                   >
                     <Share2 className="h-4 w-4" />
@@ -168,7 +168,7 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                   <button
                     onClick={() => onSave({ ...wod, id: '' })}
                     disabled={saved}
-                    className="p-2 text-neutral-400 transition-colors hover:text-white disabled:text-neutral-700"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white disabled:text-neutral-700"
                     title={saved ? 'Already in My WODs' : 'Add to My WODs'}
                   >
                     <Plus className="h-4 w-4" />
@@ -184,3 +184,4 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
     </motion.div>
   );
 };
+

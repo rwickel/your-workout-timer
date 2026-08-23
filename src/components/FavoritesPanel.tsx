@@ -45,7 +45,7 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
         <h3 className="section-label">Favorites</h3>
         <button
           onClick={() => setShowSaveDialog(true)}
-          className="flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-white"
+          className="flex min-h-[44px] items-center gap-1 rounded-lg text-sm text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" />
           Save Current
@@ -66,19 +66,19 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Workout name..."
-                className="flex-1 rounded-md border border-neutral-900 bg-transparent px-3 py-2 text-white placeholder:text-neutral-600 focus:border-neutral-400 focus:outline-none"
+                className="flex-1 rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors duration-150 focus:border-neutral-400 focus:outline-none"
                 onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                 autoFocus
               />
               <button
                 onClick={handleSave}
-                className="rounded-md bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-neutral-200"
+                className="rounded-lg bg-white px-4 py-2 font-medium text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98]"
               >
                 Save
               </button>
               <button
                 onClick={() => setShowSaveDialog(false)}
-                className="rounded-md border border-neutral-900 p-2 text-neutral-400 transition-colors hover:text-white"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-neutral-800 text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -88,7 +88,7 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
       </AnimatePresence>
 
       {favorites.length === 0 ? (
-        <p className="py-4 text-sm text-neutral-600">
+        <p className="px-2 py-8 text-center text-base text-neutral-600">
           No saved workouts yet.
         </p>
       ) : (
@@ -102,7 +102,7 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
               className="border-b border-neutral-900"
             >
               <div
-                className="flex cursor-pointer items-center gap-3 py-3"
+                className="flex min-h-[44px] cursor-pointer items-center gap-3 py-3 transition-opacity duration-150 active:opacity-70"
                 onClick={() => toggleExpand(fav.id)}
               >
                 <div className="min-w-0 flex-1">
@@ -113,14 +113,14 @@ export const FavoritesPanel: React.FC<FavoritesPanelProps> = ({
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); onSelect(fav.config); }}
-                  className="p-2 text-neutral-400 transition-colors hover:text-white"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
                   title="Load workout"
                 >
                   <Play className="h-4 w-4" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(fav.id); }}
-                  className="p-2 text-neutral-600 transition-colors hover:text-white"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 hover:text-white active:scale-[0.98]"
                   title="Delete workout"
                 >
                   <Trash2 className="h-4 w-4" />

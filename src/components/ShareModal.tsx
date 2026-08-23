@@ -42,7 +42,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ wod, onClose }) => {
       >
         <div className="flex items-center justify-between">
           <h3 className="section-label">Share "{wod.name}"</h3>
-          <button onClick={onClose} className="text-neutral-600 transition-colors hover:text-white" aria-label="Close">
+          <button onClick={onClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 hover:text-white active:scale-[0.98]" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -51,7 +51,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ wod, onClose }) => {
 
         <button
           onClick={copy}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm text-neutral-400 transition-colors hover:border-neutral-400 hover:text-white"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:border-neutral-400 hover:text-white"
         >
           <Copy className="h-4 w-4" />
           {copied ? 'Copied!' : 'Copy Link'}
@@ -61,7 +61,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ wod, onClose }) => {
           href={whatsappUrlFor(wod)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 text-sm font-semibold uppercase tracking-widest text-black transition-all duration-150 active:scale-[0.98] hover:bg-neutral-200"
         >
           <MessageCircle className="h-4 w-4" />
           Share via WhatsApp
@@ -74,3 +74,4 @@ export const ShareModal: React.FC<ShareModalProps> = ({ wod, onClose }) => {
     </div>
   );
 };
+

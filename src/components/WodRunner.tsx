@@ -180,10 +180,10 @@ const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
       )}
 
       {/* Clock */}
-      <span className="timer-display">{clockDisplay}</span>
+      <span className="timer-display my-4 block">{clockDisplay}</span>
 
       {/* Movement list with current highlighted */}
-      <div className="w-full max-w-xs space-y-1 border-t border-neutral-900 pt-4">
+      <div className="w-full max-w-xs space-y-2 border-t border-neutral-900 pt-5">
         {wod.movements.map((m, i) => (
           <p
             key={m.id}
@@ -200,7 +200,7 @@ const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
           <button
             onClick={reset}
             disabled={status === 'ready'}
-            className="p-1 text-neutral-400 transition-colors hover:text-white disabled:text-neutral-700"
+            className="p-1 text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98] disabled:text-neutral-700"
             aria-label="Reset"
           >
             <RotateCcw className="h-7 w-7" />
@@ -226,7 +226,7 @@ const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
           <button
             onClick={() => setStatus(s => (s === 'paused' ? 'running' : s === 'running' ? 'paused' : s))}
             disabled={status === 'ready' || status === 'prep'}
-            className="p-1 text-neutral-400 transition-colors hover:text-white disabled:text-neutral-700"
+            className="p-1 text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98] disabled:text-neutral-700"
             aria-label="Pause"
           >
             {status === 'paused' ? <Play className="h-7 w-7" /> : <Pause className="h-7 w-7" />}
@@ -248,13 +248,13 @@ const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
                   roundsCompleted: wod.rounds,
                 })
               }
-              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
+              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98]"
             >
               Save Result
             </button>
             <button
               onClick={onExit}
-              className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-colors hover:text-white"
+              className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
             >
               Exit
             </button>
@@ -461,12 +461,12 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
 
       {/* Clock */}
       {status === 'prep' ? (
-        <span className="timer-display">{prepRemaining}</span>
+        <span className="timer-display my-4 block">{prepRemaining}</span>
       ) : (
         <motion.span
           animate={totalSeconds - elapsed <= 3 && status === 'running' ? { opacity: [1, 0.4, 1] } : {}}
           transition={{ duration: 1, repeat: Infinity }}
-          className="timer-display"
+          className="timer-display my-4 block"
         >
           {clockDisplay}
         </motion.span>
@@ -474,7 +474,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
 
       {/* AMRAP round counter */}
       {wod.scheme === 'amrap' && status !== 'done' && (
-        <div className="flex w-full max-w-xs items-center justify-between rounded-xl border border-neutral-900 px-4 py-4">
+        <div className="flex w-full max-w-xs items-center justify-between rounded-xl border border-neutral-900 px-5 py-5">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setRoundsDone(r => Math.max(0, r - 1))}
@@ -500,7 +500,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
       )}
 
       {/* Movements */}
-      <div className="w-full max-w-xs space-y-1 border-t border-neutral-900 pt-4 text-center">
+      <div className="w-full max-w-xs space-y-2 border-t border-neutral-900 pt-5 text-center">
         {wod.movements.map(m => (
           <p key={m.id} className="text-neutral-400 tabular">
             <span className="font-bold text-white">{m.reps}</span> {m.name}
@@ -513,7 +513,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
         <div className="flex items-center gap-10">
           <button
             onClick={() => { setStatus('ready'); setElapsed(0); setPrepRemaining(0); spokenRef.current.clear(); }}
-            className="p-1 text-neutral-400 transition-colors hover:text-white"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
             aria-label="Reset"
           >
             <RotateCcw className="h-7 w-7" />
@@ -535,7 +535,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
           {(wod.scheme === 'fortime' || wod.scheme === 'rounds') && (
             <button
               onClick={finishManually}
-              className="rounded-full border border-neutral-900 px-4 py-2 text-sm uppercase tracking-widest text-neutral-400 transition-colors hover:border-neutral-400 hover:text-white"
+              className="min-h-[44px] rounded-full border border-neutral-900 px-6 py-2 text-sm uppercase tracking-widest text-neutral-400 transition-all duration-150 hover:border-neutral-400 hover:text-white active:scale-[0.98]"
             >
               Finish
             </button>
@@ -548,13 +548,13 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
           <div className="flex gap-4">
             <button
               onClick={handleFinish}
-              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
+              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98]"
             >
               Save Result
             </button>
             <button
               onClick={onExit}
-              className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-colors hover:text-white"
+              className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
             >
               Exit
             </button>
@@ -564,3 +564,5 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
     </div>
   );
 };
+
+

@@ -171,7 +171,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
                 <button
                   key={day}
                   onClick={() => setSelectedDay(selected ? null : k)}
-                  className={`aspect-square rounded-md text-sm tabular transition-colors ${
+                  className={`aspect-square rounded-lg text-sm tabular transition-all duration-150 active:scale-[0.95] ${
                     selected
                       ? 'bg-white font-bold text-black'
                       : active
@@ -202,17 +202,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search WODs..."
-          className="w-full rounded-md border border-neutral-900 bg-transparent px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:border-neutral-400 focus:outline-none"
+          className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-neutral-600 transition-colors duration-150 focus:border-neutral-400 focus:outline-none"
         />
         <div className="flex flex-wrap gap-2">
           {SCHEME_FILTERS.map(f => (
             <button
               key={f.key}
               onClick={() => setScheme(f.key)}
-              className={`rounded-full border px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest transition-colors ${
+              className={`min-h-[44px] rounded-full border px-4 py-2 text-[10px] font-medium uppercase tracking-widest transition-all duration-150 active:scale-[0.98] ${
                 scheme === f.key
                   ? 'border-white bg-white text-black'
-                  : 'border-neutral-900 text-neutral-400 hover:border-neutral-400 hover:text-white'
+                  : 'border-neutral-800 text-neutral-400 hover:border-neutral-400 hover:text-white'
               }`}
             >
               {f.label}
@@ -223,10 +223,10 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
             <button
               key={r.key}
               onClick={() => setRange(r.key)}
-              className={`rounded-full border px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest transition-colors ${
+              className={`min-h-[44px] rounded-full border px-4 py-2 text-[10px] font-medium uppercase tracking-widest transition-all duration-150 active:scale-[0.98] ${
                 range === r.key
                   ? 'border-white bg-white text-black'
-                  : 'border-neutral-900 text-neutral-400 hover:border-neutral-400 hover:text-white'
+                  : 'border-neutral-800 text-neutral-400 hover:border-neutral-400 hover:text-white'
               }`}
             >
               {r.label}
@@ -237,7 +237,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
 
       {/* List */}
       {grouped.length === 0 ? (
-        <p className="py-6 text-sm text-neutral-600">No sessions found.</p>
+        <p className="px-2 py-10 text-center text-base text-neutral-600">No sessions found.</p>
       ) : (
         <div className="space-y-4">
           <AnimatePresence>
@@ -250,7 +250,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-center gap-3 border-b border-neutral-900 py-3"
+                    className="flex min-h-[44px] items-center gap-3 border-b border-neutral-900 py-3 transition-opacity duration-150 active:opacity-70"
                   >
                     <span className="text-xs text-neutral-600 tabular">
                       {new Date(e.finishedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -262,7 +262,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ entries, onDelete })
                     <span className="font-mono text-sm text-neutral-400 tabular">{resultLabel(e)}</span>
                     <button
                       onClick={() => onDelete(e.id)}
-                      className="p-1.5 text-neutral-700 transition-colors hover:text-white"
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-700 transition-all duration-150 hover:text-white active:scale-[0.98]"
                       aria-label="Delete entry"
                     >
                       <Trash2 className="h-4 w-4" />

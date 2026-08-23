@@ -32,7 +32,7 @@ export const AudioToggle: React.FC<AudioToggleProps> = ({
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={onToggle}
-        className={`p-2 transition-colors ${
+        className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg transition-all duration-150 active:scale-[0.98] ${
           enabled ? 'text-white' : 'text-neutral-600'
         }`}
         title={enabled ? 'Mute sounds' : 'Enable sounds'}

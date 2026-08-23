@@ -18,7 +18,7 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
       <div className="w-full max-w-xs space-y-6 text-center">
         <div className="flex items-center justify-between text-left">
           <h3 className="section-label">Shared Workout</h3>
-          <button onClick={onDismiss} className="text-neutral-600 transition-colors hover:text-white" aria-label="Dismiss">
+          <button onClick={onDismiss} className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 hover:text-white active:scale-[0.98]" aria-label="Dismiss">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -43,7 +43,7 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
           {canInstall ? (
             <button
               onClick={promptInstall}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-white transition-colors hover:border-neutral-400"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-white transition-all duration-150 active:scale-[0.98] hover:border-neutral-400"
             >
               <Download className="h-4 w-4" />
               Install App
@@ -56,19 +56,19 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
           <button
             onClick={() => { setAdded(true); setTimeout(() => onImport(wod, false), 600); }}
             disabled={added}
-            className="w-full rounded-lg bg-white py-4 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200 disabled:bg-neutral-900 disabled:text-neutral-500"
+            className="w-full rounded-lg bg-white py-4 text-sm font-semibold uppercase tracking-widest text-black transition-all duration-150 active:scale-[0.98] hover:bg-neutral-200 disabled:bg-neutral-900 disabled:text-neutral-500"
           >
             {added ? 'Added!' : 'Add to My WODs'}
           </button>
           <button
             onClick={() => onImport(wod, true)}
-            className="w-full rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-colors hover:border-neutral-400 hover:text-white"
+            className="w-full rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:border-neutral-400 hover:text-white"
           >
             Start Now
           </button>
           <button
             onClick={onDismiss}
-            className="w-full text-xs uppercase tracking-widest text-neutral-600 transition-colors hover:text-neutral-400"
+            className="w-full text-xs uppercase tracking-widest text-neutral-600 transition-all duration-150 active:scale-[0.98] hover:text-neutral-400"
           >
             Dismiss
           </button>
@@ -77,3 +77,4 @@ export const WodImport: React.FC<WodImportProps> = ({ wod, onImport, onDismiss }
     </div>
   );
 };
+

@@ -96,7 +96,7 @@
 
 @layer components {
   .timer-display {
-    @apply text-8xl font-bold tracking-tight text-white;
+    @apply text-8xl font-extrabold leading-none tracking-tighter text-white sm:text-9xl;
     font-variant-numeric: tabular-nums;
   }
 
@@ -111,6 +111,10 @@
 
   .section-label {
     @apply text-xs font-medium uppercase tracking-widest text-neutral-400;
+  }
+
+  .touch-target {
+    @apply flex min-h-[44px] min-w-[44px] items-center justify-center;
   }
 
   .mobile-safe {

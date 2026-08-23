@@ -34,7 +34,7 @@ const EditableStepper: React.FC<{
     <div className="flex items-center gap-3">
       <button
         onClick={() => onChange(Math.max(min, value - step))}
-        className="text-neutral-400 transition-colors hover:text-white"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-xl text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
         aria-label="Decrease"
       >
         −
@@ -53,7 +53,7 @@ const EditableStepper: React.FC<{
       />
       <button
         onClick={() => onChange(value + step)}
-        className="text-neutral-400 transition-colors hover:text-white"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center text-xl text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
         aria-label="Increase"
       >
         +
@@ -116,7 +116,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
     >
       <div className="flex items-center justify-between">
         <h3 className="section-label">{initial ? 'Edit WOD' : 'New WOD'}</h3>
-        <button onClick={onCancel} className="text-neutral-600 transition-colors hover:text-white">
+        <button onClick={onCancel} className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 hover:text-white active:scale-[0.98]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -127,7 +127,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="WOD name..."
-        className="w-full rounded-md border border-neutral-900 bg-transparent px-3 py-2 text-white placeholder:text-neutral-600 focus:border-neutral-400 focus:outline-none"
+        className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors duration-150 focus:border-neutral-400 focus:outline-none"
         autoFocus
       />
 
@@ -137,10 +137,10 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
           <button
             key={s}
             onClick={() => setScheme(s)}
-            className={`rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-widest transition-colors ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-widest transition-all duration-150 active:scale-[0.98] ${
               scheme === s
                 ? 'border-white bg-white text-black'
-                : 'border-neutral-900 text-neutral-400 hover:border-neutral-400 hover:text-white'
+                : 'border-neutral-800 text-neutral-400 hover:border-neutral-400 hover:text-white'
             }`}
           >
             {SCHEME_LABELS[s]}
@@ -194,7 +194,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
               value={m.name}
               onChange={(e) => updateMovement(m.id, 'name', e.target.value)}
               placeholder="Movement..."
-              className="min-w-0 flex-1 rounded-md border border-neutral-900 bg-transparent px-3 py-2 text-white placeholder:text-neutral-600 focus:border-neutral-400 focus:outline-none"
+              className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors duration-150 focus:border-neutral-400 focus:outline-none"
             />
             <div className="rounded-md border border-neutral-900 px-1 py-0.5">
               <EditableStepper
@@ -207,7 +207,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
             </div>
             <button
               onClick={() => removeMovement(m.id)}
-              className="p-2 text-neutral-600 transition-colors hover:text-white"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center text-neutral-600 transition-all duration-150 hover:text-white active:scale-[0.98]"
               aria-label="Remove movement"
             >
               <Trash2 className="h-4 w-4" />
@@ -216,7 +216,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
         ))}
         <button
           onClick={addMovement}
-          className="flex items-center gap-1 pt-1 text-sm text-neutral-400 transition-colors hover:text-white"
+          className="flex min-h-[44px] items-center gap-1 rounded-lg pt-1 text-sm text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" />
           Add Movement
@@ -226,7 +226,7 @@ export const WodBuilder: React.FC<WodBuilderProps> = ({ onSave, onCancel, initia
       <button
         onClick={handleSave}
         disabled={movements.filter(m => m.name.trim()).length === 0}
-        className="w-full rounded-lg bg-white py-4 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200 disabled:bg-neutral-900 disabled:text-neutral-600"
+        className="w-full rounded-lg bg-white py-4 text-sm font-semibold uppercase tracking-widest text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98] disabled:bg-neutral-900 disabled:text-neutral-600"
       >
         Save WOD
       </button>

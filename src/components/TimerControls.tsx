@@ -29,7 +29,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onReset}
-          className="p-1 text-neutral-400 transition-colors hover:text-white"
+          className="p-1 text-neutral-400 transition-all duration-150 active:scale-[0.98] hover:text-white"
           aria-label="Reset"
         >
           <RotateCcw className="h-7 w-7" />
@@ -38,7 +38,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => onAdjustTime(-10)}
-            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-colors hover:border-neutral-400 hover:text-white"
+            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-all duration-150 active:scale-[0.98] hover:border-neutral-400 hover:text-white"
           >
             -10s
           </motion.button>
@@ -80,7 +80,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => onAdjustTime(10)}
-            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-colors hover:border-neutral-400 hover:text-white"
+            className="flex h-11 w-full items-center justify-center rounded-full border border-neutral-900 text-sm text-neutral-400 tabular transition-all duration-150 active:scale-[0.98] hover:border-neutral-400 hover:text-white"
           >
             +10s
           </motion.button>

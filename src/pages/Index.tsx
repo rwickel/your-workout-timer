@@ -176,14 +176,18 @@ const Index: React.FC = () => {
         />
       )}
       {/* Header */}
-      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-900 bg-black px-4">
+      <header
+        className={`sticky top-0 z-50 flex items-center justify-between border-b border-neutral-900 bg-black px-4 ${
+          !showConfig || activeWod ? 'h-16' : 'h-14'
+        }`}
+      >
         {!showConfig || activeWod ? (
           <button
             onClick={() => { if (activeWod) setActiveWod(null); else handleBackToConfig(); }}
-            className="flex items-center gap-1 font-bold text-neutral-400 transition-colors hover:text-white"
+            className="flex min-h-[44px] items-center gap-1 rounded-lg pr-2 pl-1 font-bold text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
           >
             <ChevronLeft className="h-5 w-5" />
-            <span className="text-sm">Back</span>
+            <span className="text-sm uppercase tracking-widest">Back</span>
           </button>
         ) : (
           <div />
@@ -210,10 +214,10 @@ const Index: React.FC = () => {
                 <button
                   key={m}
                   onClick={() => setMode(m)}
-                  className={`pb-2 text-sm font-medium uppercase tracking-widest transition-colors ${
+                  className={`min-h-[44px] pb-2 pt-2 text-sm font-medium uppercase tracking-widest transition-all duration-150 active:scale-[0.98] ${
                     mode === m
-                      ? 'border-b border-white text-white'
-                      : 'border-b border-transparent text-neutral-600 hover:text-neutral-400'
+                      ? 'border-b-2 border-white text-white'
+                      : 'border-b-2 border-transparent text-neutral-600 hover:text-neutral-400'
                   }`}
                 >
                   {m === 'intervals' ? 'Intervals' : m === 'wod' ? 'WOD' : 'History'}
@@ -273,7 +277,7 @@ const Index: React.FC = () => {
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleStartWorkout}
-                      className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-colors hover:bg-neutral-200"
+                      className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98]"
                     >
                       Start Workout
                     </motion.button>
@@ -320,7 +324,7 @@ const Index: React.FC = () => {
                     </h2>
                     <button
                       onClick={handleBackToConfig}
-                      className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-colors hover:text-white"
+                      className="rounded-lg border border-neutral-900 px-6 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-all duration-150 hover:text-white active:scale-[0.98]"
                     >
                       Back to Settings
                     </button>

@@ -27,7 +27,7 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ config }) => {
   const totalWorkTime = config.workTime * config.rounds;
 
   return (
-    <div className="flex items-center justify-between border-t border-b border-neutral-900 py-4">
+    <div className="flex items-center justify-between border-y border-neutral-900 py-5">
       <div>
         <p className="section-label">Total</p>
         <p className="mt-1 font-mono text-xl font-bold text-white tabular">

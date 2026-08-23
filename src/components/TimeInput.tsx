@@ -74,7 +74,7 @@ export const TimeInput: React.FC<TimeInputProps> = ({
       <div className="flex items-center justify-between">
         <button
           onClick={handleDecrement}
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-neutral-400 transition-all duration-150 hover:text-white active:scale-95"
           aria-label={`Decrease ${label}`}
         >
           <Minus className="h-5 w-5" />
@@ -91,7 +91,7 @@ export const TimeInput: React.FC<TimeInputProps> = ({
         />
         <button
           onClick={handleIncrement}
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-neutral-400 transition-colors hover:text-white active:scale-95"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-neutral-400 transition-all duration-150 hover:text-white active:scale-95"
           aria-label={`Increase ${label}`}
         >
           <Plus className="h-5 w-5" />
