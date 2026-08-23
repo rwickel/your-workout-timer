@@ -77,25 +77,35 @@ const Index: React.FC = () => {
           }
           break;
         case 'work': {
-          const exName =
-            config.exercises && config.exercises.length > 0
-              ? config.exercises[timer.state.currentExercise]?.name
-              : config.exerciseName;
-          const roundStart = timer.state.currentExercise === 0;
-          audio.speak(
-            exName?.trim()
-              ? `${roundStart ? `Round ${currentRound}. ` : ''}${exName.trim()}`
-              : 'Work'
-          );
+          audio.speak(`Round ${currentRound}`);
           break;
         }
-        case 'pause':
-          // Skip the announcement for very short rest times so it
-          // doesn't overlap with the end-of-rest countdown
+        case 'pause': {
+          // During intervals: "prepare for Pushups" before the countdown, then "Round X" on work start
+          if (config.exercises && config.exercises.length > 0) {
+            const exercises = config.exercises;
+            const curEx = exercises[timer.state.currentExercise];
+            // Next exercise: same one if more rounds remain, otherwise the following one
+            const curRounds = curEx?.rounds ?? config.rounds;
+            let nextName: string | undefined;
+            if (currentRound < curRounds) {
+              nextName = curEx?.name;
+            } else {
+              nextName = exercises[timer.state.currentExercise + 1]?.name;
+            }
+            if (nextName?.trim()) {
+              if (pauseDuration > 10) audio.speak(`prepare for ${nextName.trim()}`);
+              break;
+            }
+          } else if (config.exerciseName?.trim()) {
+            if (pauseDuration > 10) audio.speak(`prepare for ${config.exerciseName.trim()}`);
+            break;
+          }
           if (pauseDuration > 10) {
             audio.speak('Prepare for rest');
           }
           break;
+        }
         case 'complete':
           audio.speak('Workout complete');
           break;
