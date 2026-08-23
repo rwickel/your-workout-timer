@@ -39,6 +39,17 @@ export const DEFAULT_CONFIG: TimerConfig = {
   workAdjustment: 0,
   restAdjustment: 0,
   preparationAdjustment: 0,
+  exercises: [
+    {
+      id: 'ex-1',
+      name: '',
+      rounds: 8,
+      workTime: 45,
+      pauseTime: 15,
+      workAdjustment: 0,
+      restAdjustment: 0,
+    },
+  ],
 };
 
 export const formatTime = (seconds: number): string => {
