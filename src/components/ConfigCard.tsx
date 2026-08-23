@@ -33,12 +33,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
           value={config.pauseTime}
           onChange={(v) => updateField('pauseTime', v)}
         />
-
-        <TimeInput
-          label="Preparation Time"
-          value={config.preparationTime}
-          onChange={(v) => updateField('preparationTime', v)}
-        />
       </div>
 
       <div className="border-t border-neutral-900" />
