@@ -19,6 +19,7 @@ import { WodRunner } from '@/components/WodRunner';
 import { HistoryPanel } from '@/components/HistoryPanel';
 import { WodImport } from '@/components/WodImport';
 import { decodeWod } from '@/lib/wodShare';
+import { APP_VERSION } from '@/lib/version';
 
 type AppMode = 'intervals' | 'wod' | 'history';
 
@@ -359,6 +360,9 @@ const Index: React.FC = () => {
           </AnimatePresence>
         </div>
       </main>
+      <footer className="border-t border-neutral-900 py-4 text-center text-[11px] tracking-widest text-neutral-700">
+        v{APP_VERSION}
+      </footer>
     </div>
   );
 };
