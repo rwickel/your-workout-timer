@@ -24,12 +24,12 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
     ]);
   };
 
-  const updateExercise = (id: string, field: 'name' | 'workTime', value: string) => {
-    updateField('exercises', exercises.map(ex =>
-      ex.id === id
-        ? { ...ex, [field]: field === 'workTime' ? Math.max(5, Number(value) || 5) : value }
-        : ex
-    ));
+  const updateExercise = (id: string, field: 'name' | 'workTime' | 'pauseTime' | 'workAdjustment' | 'restAdjustment', value: string) => {
+    updateField('exercises', exercises.map(ex => {
+      if (ex.id !== id) return ex;
+      if (field === 'name') return { ...ex, name: value };
+      return { ...ex, [field]: Number(value) || 0 };
+    }));
   };
 
   const removeExercise = (id: string) => {
@@ -61,41 +61,56 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             />
           </>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {exercises.map((ex, i) => (
-              <div key={ex.id} className="flex items-center gap-2">
-                <span className="w-6 text-center font-mono text-sm text-neutral-500 tabular">{i + 1}</span>
+              <div key={ex.id} className="space-y-4 rounded-xl border border-neutral-900 p-4">
+                <div className="flex items-center gap-2">
+                  <span className="section-label flex-1">Exercise {i + 1}</span>
+                  <button
+                    onClick={() => removeExercise(ex.id)}
+                    className="flex h-11 w-11 items-center justify-center text-neutral-600 transition-colors hover:text-white active:scale-95"
+                    aria-label={`Remove exercise ${i + 1}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={ex.name}
                   onChange={(e) => updateExercise(ex.id, 'name', e.target.value)}
-                  placeholder="Exercise..."
-                  className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
+                  placeholder="Exercise name..."
+                  className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
                 />
-                <div className="flex items-center rounded-lg border border-neutral-800">
-                  <button
-                    onClick={() => updateExercise(ex.id, 'workTime', String(Math.max(5, ex.workTime - 5)))}
-                    className="flex h-11 w-9 items-center justify-center text-neutral-400 transition-colors hover:text-white"
-                    aria-label="Decrease work time"
-                  >
-                    −
-                  </button>
-                  <span className="w-14 text-center font-mono text-sm font-bold text-white tabular">{ex.workTime}s</span>
-                  <button
-                    onClick={() => updateExercise(ex.id, 'workTime', String(ex.workTime + 5))}
-                    className="flex h-11 w-9 items-center justify-center text-neutral-400 transition-colors hover:text-white"
-                    aria-label="Increase work time"
-                  >
-                    +
-                  </button>
+                <TimeInput
+                  label="Work Time"
+                  value={ex.workTime}
+                  onChange={(v) => updateExercise(ex.id, 'workTime', String(v))}
+                />
+                <TimeInput
+                  label="Rest Time"
+                  value={ex.pauseTime ?? config.pauseTime}
+                  onChange={(v) => updateExercise(ex.id, 'pauseTime', String(v))}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberInput
+                    label="Work Adj."
+                    value={ex.workAdjustment ?? config.workAdjustment}
+                    onChange={(v) => updateExercise(ex.id, 'workAdjustment', String(v))}
+                    min={-30}
+                    max={30}
+                    suffix="s"
+                    showSign
+                  />
+                  <NumberInput
+                    label="Rest Adj."
+                    value={ex.restAdjustment ?? config.restAdjustment}
+                    onChange={(v) => updateExercise(ex.id, 'restAdjustment', String(v))}
+                    min={-30}
+                    max={30}
+                    suffix="s"
+                    showSign
+                  />
                 </div>
-                <button
-                  onClick={() => removeExercise(ex.id)}
-                  className="flex h-11 w-11 items-center justify-center text-neutral-600 transition-colors hover:text-white active:scale-95"
-                  aria-label="Remove exercise"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
               </div>
             ))}
           </div>
@@ -109,7 +124,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
         </button>
         {exercises.length > 0 && (
           <p className="text-xs text-neutral-600">
-            Each round runs all exercises in order. Rest applies between them.
+            Each round runs all exercises with their own settings.
           </p>
         )}
       </div>

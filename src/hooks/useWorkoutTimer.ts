@@ -26,6 +26,21 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     return Math.max(0, config.pauseTime + adjustment);
   }, [config.pauseTime, config.restAdjustment]);
 
+  // Per-exercise work time with its own progressive adjustment
+  const getWorkFor = useCallback((exIdx: number, round: number) => {
+    const ex = getExercises()[exIdx];
+    const adj = ex.workAdjustment ?? config.workAdjustment;
+    return Math.max(0, ex.workTime + adj * (round - 1));
+  }, [config.workAdjustment, getExercises]);
+
+  // Rest after a given exercise, using its own rest time/adjustment when set
+  const getRestFor = useCallback((exIdx: number, round: number) => {
+    const ex = getExercises()[exIdx];
+    const base = ex.pauseTime ?? config.pauseTime;
+    const adj = ex.restAdjustment ?? config.restAdjustment;
+    return Math.max(0, base + adj * (round - 1));
+  }, [config.pauseTime, config.restAdjustment, getExercises]);
+
   // Advance from an exercise to the next work phase or completion
   const advanceFromExercise = useCallback((round: number, ex: number): { phase: TimerPhase; round: number; ex: number; time: number } => {
     const exercises = getExercises();
@@ -43,9 +58,8 @@ export const useWorkoutTimer = (config: TimerConfig) => {
       nextRound = round + 1;
     }
 
-    const base = exercises[nextEx].workTime + config.workAdjustment * (nextRound - 1);
-    return { phase: 'work', round: nextRound, ex: nextEx, time: Math.max(0, base) };
-  }, [config.rounds, config.workAdjustment, getExercises]);
+    return { phase: 'work', round: nextRound, ex: nextEx, time: getWorkFor(nextEx, nextRound) };
+  }, [getWorkFor]);
 
   const getNextPhase = useCallback((
     currentPhase: TimerPhase,
@@ -55,23 +69,21 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     switch (currentPhase) {
       case 'idle':
       case 'preparation': {
-        const first = getExercises()[0];
-        const base = first.workTime + config.workAdjustment * (currentRound - 1);
-        return { phase: 'work', round: currentRound, ex: 0, time: Math.max(0, base) };
+        return { phase: 'work', round: currentRound, ex: 0, time: getWorkFor(0, currentRound) };
       }
       case 'work': {
-        // Rest between phases; skipped when rest time is 0
-        if (getAdjustedPauseTime(currentRound) <= 0) {
+        // Rest after this exercise; skipped when its rest time is 0
+        if (getRestFor(currentEx, currentRound) <= 0) {
           return advanceFromExercise(currentRound, currentEx);
         }
-        return { phase: 'pause', round: currentRound, ex: currentEx, time: getAdjustedPauseTime(currentRound) };
+        return { phase: 'pause', round: currentRound, ex: currentEx, time: getRestFor(currentEx, currentRound) };
       }
       case 'pause':
         return advanceFromExercise(currentRound, currentEx);
       default:
         return { phase: 'complete', round: currentRound, ex: currentEx, time: 0 };
     }
-  }, [advanceFromExercise, getAdjustedPauseTime, getExercises]);
+  }, [advanceFromExercise, getRestFor, getWorkFor]);
 
   const tick = useCallback(() => {
     setState(prev => {

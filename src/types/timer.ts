@@ -2,6 +2,9 @@ export interface IntervalExercise {
   id: string;
   name: string;
   workTime: number; // in seconds
+  pauseTime?: number; // rest after this exercise (defaults to global)
+  workAdjustment?: number; // per-round adjustment (defaults to global)
+  restAdjustment?: number;
 }
 
 export interface TimerConfig {
