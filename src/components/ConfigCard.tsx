@@ -1,27 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TimerConfig } from '@/types/timer';
-import { TimeInput } from './TimeInput';
-import { NumberInput } from './NumberInput';
-
-interface ConfigCardProps {
-  config: TimerConfig;
-  onChange: (config: TimerConfig) => void;
-}
-
-export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
-  const updateField = <K extends keyof TimerConfig>(field: K, value: TimerConfig[K]) => {
-    onChange({ ...config, [field]: value });
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-import React from 'react';
-import { motion } from 'framer-motion';
 import { Plus, Trash2 } from 'lucide-react';
 import { TimerConfig } from '@/types/timer';
 import { TimeInput } from './TimeInput';
