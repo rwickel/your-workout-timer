@@ -188,7 +188,7 @@ const Index: React.FC = () => {
         ) : (
           <div />
         )}
-        {activeWod && (
+        {(activeWod || !showConfig) && (
           <div className="ml-auto flex items-center gap-2">
             <AudioToggle
               enabled={audioEnabled}
