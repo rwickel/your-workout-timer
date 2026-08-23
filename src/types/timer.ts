@@ -45,7 +45,7 @@ export const DEFAULT_CONFIG: TimerConfig = {
       name: '',
       rounds: 8,
       workTime: 45,
-      pauseTime: 0,
+      pauseTime: 15,
       workAdjustment: 0,
       restAdjustment: 0,
     },

@@ -32,7 +32,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
   const addExercise = () => {
     updateField('exercises', [
       ...exercises,
-      { id: `ex-${Date.now()}`, name: '', workTime: config.workTime, pauseTime: 0, workAdjustment: 0, restAdjustment: 0 },
+      { id: `ex-${Date.now()}`, name: '', workTime: config.workTime },
     ]);
   };
 
@@ -105,14 +105,12 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                   value={ex.workTime}
                   onChange={(v) => updateExercise(ex.id, 'workTime', String(v))}
                 />
-                {i > 0 && (
-                  <TimeInput
-                    label="Rest Time"
-                    value={ex.pauseTime ?? 0}
-                    onChange={(v) => updateExercise(ex.id, 'pauseTime', String(v))}
-                  />
-                )}
-                <div className={`grid gap-4 ${i > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                <TimeInput
+                  label="Rest Time"
+                  value={ex.pauseTime ?? config.pauseTime}
+                  onChange={(v) => updateExercise(ex.id, 'pauseTime', String(v))}
+                />
+                <div className="grid grid-cols-2 gap-4">
                   <NumberInput
                     label="Work Adj. (+s/Round)"
                     value={ex.workAdjustment ?? config.workAdjustment}
@@ -122,24 +120,22 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                     suffix="s"
                     showSign
                   />
-                  {i > 0 && (
-                    <NumberInput
-                      label="Rest Adj. (+s/Round)"
-                      value={ex.restAdjustment ?? 0}
-                      onChange={(v) => updateExercise(ex.id, 'restAdjustment', String(v))}
-                      min={-30}
-                      max={30}
-                      suffix="s"
-                      showSign
-                    />
-                  )}
+                  <NumberInput
+                    label="Rest Adj. (+s/Round)"
+                    value={ex.restAdjustment ?? config.restAdjustment}
+                    onChange={(v) => updateExercise(ex.id, 'restAdjustment', String(v))}
+                    min={-30}
+                    max={30}
+                    suffix="s"
+                    showSign
+                  />
                 </div>
                 <p className="text-xs text-neutral-500 tabular">
                   {ladderPreview(
                     ex.workTime,
-                    i > 0 ? (ex.pauseTime ?? 0) : 0,
+                    ex.pauseTime ?? config.pauseTime,
                     ex.workAdjustment ?? config.workAdjustment,
-                    i > 0 ? (ex.restAdjustment ?? 0) : 0,
+                    ex.restAdjustment ?? config.restAdjustment,
                     ex.rounds ?? config.rounds
                   )}
                 </p>
@@ -161,8 +157,8 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
         </button>
       </div>
 
-      {/* Rest between exercises / rounds — fallback for exercises without own value */}
-      {exercises.length > 0 && (
+      {/* Rest between exercises — only when more than one exercise is set up */}
+      {exercises.length > 1 && (
         <TimeInput
           label="Rest Time (between exercises)"
           value={config.pauseTime}
