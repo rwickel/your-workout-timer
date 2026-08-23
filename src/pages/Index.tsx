@@ -317,7 +317,11 @@ const Index: React.FC = () => {
               >
                 <TimerDisplay
                   state={timer.state}
-                  totalRounds={config.rounds}
+                  totalRounds={
+                    config.exercises && config.exercises.length > 0
+                      ? config.exercises[timer.state.currentExercise]?.rounds ?? config.rounds
+                      : config.rounds
+                  }
                   exerciseName={
                     config.exercises && config.exercises.length > 0
                       ? config.exercises[timer.state.currentExercise]?.name

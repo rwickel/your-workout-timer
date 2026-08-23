@@ -93,6 +93,13 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                   placeholder="Exercise name..."
                   className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
                 />
+                <NumberInput
+                  label="Rounds"
+                  value={ex.rounds ?? config.rounds}
+                  onChange={(v) => updateExercise(ex.id, 'rounds', String(Math.max(1, v)))}
+                  min={1}
+                  max={99}
+                />
                 <TimeInput
                   label="Work Time"
                   value={ex.workTime}
@@ -129,7 +136,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                     ex.pauseTime ?? config.pauseTime,
                     ex.workAdjustment ?? config.workAdjustment,
                     ex.restAdjustment ?? config.restAdjustment,
-                    config.rounds
+                    ex.rounds ?? config.rounds
                   )}
                 </p>
               </div>

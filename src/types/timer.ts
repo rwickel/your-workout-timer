@@ -1,6 +1,7 @@
 export interface IntervalExercise {
   id: string;
   name: string;
+  rounds?: number; // own round count (defaults to global)
   workTime: number; // in seconds
   pauseTime?: number; // rest after this exercise (defaults to global)
   workAdjustment?: number; // per-round adjustment (defaults to global)

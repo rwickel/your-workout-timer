@@ -6,6 +6,11 @@ export interface WodMovement {
   reps: number;
 }
 
+export interface WodBenchmark {
+  level: string;
+  result: string;
+}
+
 export interface Wod {
   id: string;
   name: string;
@@ -15,6 +20,7 @@ export interface Wod {
   exerciseRestSeconds?: number; // Rounds: rest between exercises (default 30)
   rounds: number; // used by emom, rounds
   movements: WodMovement[];
+  benchmarks?: WodBenchmark[]; // expected results by level
 }
 
 export interface WodResult {

@@ -41,25 +41,28 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     return Math.max(0, base + adj * (round - 1));
   }, [config.pauseTime, config.restAdjustment, getExercises]);
 
+  // Rounds for a given exercise (own count or global fallback)
+  const getRoundsFor = useCallback((exIdx: number) => {
+    return getExercises()[exIdx].rounds ?? config.rounds;
+  }, [config.rounds, getExercises]);
+
   // Advance from an exercise to the next work phase or completion
   const advanceFromExercise = useCallback((round: number, ex: number): { phase: TimerPhase; round: number; ex: number; time: number } => {
     const exercises = getExercises();
     const isLastExercise = ex >= exercises.length - 1;
-    const isLastRound = round >= config.rounds;
 
-    if (isLastExercise && isLastRound) {
+    if (round < getRoundsFor(ex)) {
+      // Next round of the same exercise
+      return { phase: 'work', round: round + 1, ex, time: getWorkFor(ex, round + 1) };
+    }
+    if (isLastExercise) {
       return { phase: 'complete', round, ex, time: 0 };
     }
 
-    let nextRound = round;
-    let nextEx = ex + 1;
-    if (nextEx >= exercises.length) {
-      nextEx = 0;
-      nextRound = round + 1;
-    }
-
-    return { phase: 'work', round: nextRound, ex: nextEx, time: getWorkFor(nextEx, nextRound) };
-  }, [getWorkFor]);
+    // Move to the next exercise, restarting at its own round 1
+    const nextEx = ex + 1;
+    return { phase: 'work', round: 1, ex: nextEx, time: getWorkFor(nextEx, 1) };
+  }, [getRoundsFor, getWorkFor]);
 
   const getNextPhase = useCallback((
     currentPhase: TimerPhase,
@@ -69,7 +72,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     switch (currentPhase) {
       case 'idle':
       case 'preparation': {
-        return { phase: 'work', round: currentRound, ex: 0, time: getWorkFor(0, currentRound) };
+        return { phase: 'work', round: 1, ex: 0, time: getWorkFor(0, 1) };
       }
       case 'work': {
         // Rest after this exercise; skipped when its rest time is 0

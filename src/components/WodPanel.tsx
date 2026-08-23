@@ -150,6 +150,11 @@ export const WodPanel: React.FC<WodPanelProps> = ({ wods, onStart, onSave, onDel
                       {wod.movements.slice(0, 3).map(m => `${m.reps} ${m.name}`).join(', ')}
                       {wod.movements.length > 3 && ' …'}
                     </p>
+                    {wod.benchmarks && (
+                      <p className="mt-1 text-[11px] text-neutral-600 tabular">
+                        {wod.benchmarks.map(b => `${b.level}: ${b.result}`).join(' · ')}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => onStart({ ...wod, id: '' })}
