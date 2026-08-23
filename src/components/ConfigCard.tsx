@@ -76,15 +76,6 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
             suffix="s"
             showSign
           />
-          <NumberInput
-            label="Prep Adj."
-            value={config.preparationAdjustment}
-            onChange={(v) => updateField('preparationAdjustment', v)}
-            min={-30}
-            max={30}
-            suffix="s"
-            showSign
-          />
         </div>
       </div>
     </motion.div>
