@@ -5,6 +5,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
   const [state, setState] = useState<TimerState>({
     phase: 'idle',
     currentRound: 1,
+    currentExercise: 0,
     timeRemaining: config.preparationTime,
     isRunning: false,
     totalElapsed: 0,
@@ -12,43 +13,65 @@ export const useWorkoutTimer = (config: TimerConfig) => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getAdjustedWorkTime = useCallback((round: number) => {
-    const adjustment = config.workAdjustment * (round - 1);
-    return Math.max(0, config.workTime + adjustment);
-  }, [config.workTime, config.workAdjustment]);
+  // Exercise sequence per round: explicit list or fallback to single work time
+  const getExercises = useCallback(() => {
+    if (config.exercises && config.exercises.length > 0) {
+      return config.exercises;
+    }
+    return [{ id: 'single', name: config.exerciseName ?? '', workTime: config.workTime }];
+  }, [config.exercises, config.exerciseName, config.workTime]);
 
   const getAdjustedPauseTime = useCallback((round: number) => {
     const adjustment = config.restAdjustment * (round - 1);
     return Math.max(0, config.pauseTime + adjustment);
   }, [config.pauseTime, config.restAdjustment]);
 
-  const getAdjustedPrepTime = useCallback((round: number) => {
-    const adjustment = config.preparationAdjustment * (round - 1);
-    return Math.max(0, config.preparationTime + adjustment);
-  }, [config.preparationTime, config.preparationAdjustment]);
+  // Advance from an exercise to the next work phase or completion
+  const advanceFromExercise = useCallback((round: number, ex: number): { phase: TimerPhase; round: number; ex: number; time: number } => {
+    const exercises = getExercises();
+    const isLastExercise = ex >= exercises.length - 1;
+    const isLastRound = round >= config.rounds;
 
-  const getNextPhase = useCallback((currentPhase: TimerPhase, currentRound: number): { phase: TimerPhase; round: number; time: number } => {
+    if (isLastExercise && isLastRound) {
+      return { phase: 'complete', round, ex, time: 0 };
+    }
+
+    let nextRound = round;
+    let nextEx = ex + 1;
+    if (nextEx >= exercises.length) {
+      nextEx = 0;
+      nextRound = round + 1;
+    }
+
+    const base = exercises[nextEx].workTime + config.workAdjustment * (nextRound - 1);
+    return { phase: 'work', round: nextRound, ex: nextEx, time: Math.max(0, base) };
+  }, [config.rounds, config.workAdjustment, getExercises]);
+
+  const getNextPhase = useCallback((
+    currentPhase: TimerPhase,
+    currentRound: number,
+    currentEx: number
+  ): { phase: TimerPhase; round: number; ex: number; time: number } => {
     switch (currentPhase) {
       case 'idle':
-      case 'preparation':
-        return { phase: 'work', round: currentRound, time: getAdjustedWorkTime(currentRound) };
-      case 'work':
-        if (currentRound >= config.rounds) {
-          return { phase: 'complete', round: currentRound, time: 0 };
-        }
-        // When rest time is 0, skip rest and go straight to the next work phase
+      case 'preparation': {
+        const first = getExercises()[0];
+        const base = first.workTime + config.workAdjustment * (currentRound - 1);
+        return { phase: 'work', round: currentRound, ex: 0, time: Math.max(0, base) };
+      }
+      case 'work': {
+        // Rest between phases; skipped when rest time is 0
         if (getAdjustedPauseTime(currentRound) <= 0) {
-          return { phase: 'work', round: currentRound + 1, time: getAdjustedWorkTime(currentRound + 1) };
+          return advanceFromExercise(currentRound, currentEx);
         }
-        return { phase: 'pause', round: currentRound, time: getAdjustedPauseTime(currentRound) };
+        return { phase: 'pause', round: currentRound, ex: currentEx, time: getAdjustedPauseTime(currentRound) };
+      }
       case 'pause':
-        // No preparation between rounds - go straight into the next work phase
-        const nextRound = currentRound + 1;
-        return { phase: 'work', round: nextRound, time: getAdjustedWorkTime(nextRound) };
+        return advanceFromExercise(currentRound, currentEx);
       default:
-        return { phase: 'complete', round: currentRound, time: 0 };
+        return { phase: 'complete', round: currentRound, ex: currentEx, time: 0 };
     }
-  }, [config.rounds, getAdjustedWorkTime, getAdjustedPauseTime, getAdjustedPrepTime]);
+  }, [advanceFromExercise, getAdjustedPauseTime, getExercises]);
 
   const tick = useCallback(() => {
     setState(prev => {
@@ -59,11 +82,12 @@ export const useWorkoutTimer = (config: TimerConfig) => {
       const newTimeRemaining = prev.timeRemaining - 1;
 
       if (newTimeRemaining <= 0) {
-        const next = getNextPhase(prev.phase, prev.currentRound);
+        const next = getNextPhase(prev.phase, prev.currentRound, prev.currentExercise);
         return {
           ...prev,
           phase: next.phase,
           currentRound: next.round,
+          currentExercise: next.ex,
           timeRemaining: next.time,
           totalElapsed: prev.totalElapsed + 1,
           isRunning: next.phase !== 'complete',
@@ -101,6 +125,8 @@ export const useWorkoutTimer = (config: TimerConfig) => {
         return {
           ...prev,
           phase: 'preparation',
+          currentRound: 1,
+          currentExercise: 0,
           timeRemaining: config.preparationTime,
           isRunning: true,
         };
@@ -117,6 +143,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     setState({
       phase: 'idle',
       currentRound: 1,
+      currentExercise: 0,
       timeRemaining: config.preparationTime,
       isRunning: false,
       totalElapsed: 0,
@@ -126,11 +153,12 @@ export const useWorkoutTimer = (config: TimerConfig) => {
   const skipPhase = useCallback(() => {
     setState(prev => {
       if (prev.phase === 'complete' || prev.phase === 'idle') return prev;
-      const next = getNextPhase(prev.phase, prev.currentRound);
+      const next = getNextPhase(prev.phase, prev.currentRound, prev.currentExercise);
       return {
         ...prev,
         phase: next.phase,
         currentRound: next.round,
+        currentExercise: next.ex,
         timeRemaining: next.time,
         isRunning: next.phase !== 'complete',
       };
@@ -151,8 +179,5 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     reset,
     skipPhase,
     adjustTime,
-    getAdjustedWorkTime,
-    getAdjustedPauseTime,
-    getAdjustedPrepTime,
   };
 };

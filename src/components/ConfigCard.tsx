@@ -20,28 +20,128 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
       animate={{ opacity: 1 }}
       className="space-y-8"
     >
-      {/* Exercise */}
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Plus, Trash2 } from 'lucide-react';
+import { TimerConfig } from '@/types/timer';
+import { TimeInput } from './TimeInput';
+import { NumberInput } from './NumberInput';
+
+interface ConfigCardProps {
+  config: TimerConfig;
+  onChange: (config: TimerConfig) => void;
+}
+
+export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
+  const updateField = <K extends keyof TimerConfig>(field: K, value: TimerConfig[K]) => {
+    onChange({ ...config, [field]: value });
+  };
+
+  const exercises = config.exercises ?? [];
+
+  const addExercise = () => {
+    updateField('exercises', [
+      ...exercises,
+      { id: `ex-${Date.now()}`, name: '', workTime: config.workTime },
+    ]);
+  };
+
+  const updateExercise = (id: string, field: 'name' | 'workTime', value: string) => {
+    updateField('exercises', exercises.map(ex =>
+      ex.id === id
+        ? { ...ex, [field]: field === 'workTime' ? Math.max(5, Number(value) || 5) : value }
+        : ex
+    ));
+  };
+
+  const removeExercise = (id: string) => {
+    updateField('exercises', exercises.filter(ex => ex.id !== id));
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Exercise Sequence */}
       <div className="space-y-4">
-        <input
-          type="text"
-          value={config.exerciseName ?? ''}
-          onChange={(e) => updateField('exerciseName', e.target.value)}
-          placeholder="Exercise (optional)..."
-          className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
-        />
-
-        <TimeInput
-          label="Work Time"
-          value={config.workTime}
-          onChange={(v) => updateField('workTime', v)}
-        />
-
-        <TimeInput
-          label="Rest Time"
-          value={config.pauseTime}
-          onChange={(v) => updateField('pauseTime', v)}
-        />
+        <p className="section-label">Exercises</p>
+        {exercises.length === 0 ? (
+          <>
+            <input
+              type="text"
+              value={config.exerciseName ?? ''}
+              onChange={(e) => updateField('exerciseName', e.target.value)}
+              placeholder="Exercise (optional)..."
+              className="w-full rounded-lg border border-neutral-800 bg-transparent px-3 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
+            />
+            <TimeInput
+              label="Work Time"
+              value={config.workTime}
+              onChange={(v) => updateField('workTime', v)}
+            />
+          </>
+        ) : (
+          <div className="space-y-2">
+            {exercises.map((ex, i) => (
+              <div key={ex.id} className="flex items-center gap-2">
+                <span className="w-6 text-center font-mono text-sm text-neutral-500 tabular">{i + 1}</span>
+                <input
+                  type="text"
+                  value={ex.name}
+                  onChange={(e) => updateExercise(ex.id, 'name', e.target.value)}
+                  placeholder="Exercise..."
+                  className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-transparent px-3 py-2.5 text-white placeholder:text-neutral-600 transition-colors focus:border-neutral-400 focus:outline-none"
+                />
+                <div className="flex items-center rounded-lg border border-neutral-800">
+                  <button
+                    onClick={() => updateExercise(ex.id, 'workTime', String(Math.max(5, ex.workTime - 5)))}
+                    className="flex h-11 w-9 items-center justify-center text-neutral-400 transition-colors hover:text-white"
+                    aria-label="Decrease work time"
+                  >
+                    −
+                  </button>
+                  <span className="w-14 text-center font-mono text-sm font-bold text-white tabular">{ex.workTime}s</span>
+                  <button
+                    onClick={() => updateExercise(ex.id, 'workTime', String(ex.workTime + 5))}
+                    className="flex h-11 w-9 items-center justify-center text-neutral-400 transition-colors hover:text-white"
+                    aria-label="Increase work time"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  onClick={() => removeExercise(ex.id)}
+                  className="flex h-11 w-11 items-center justify-center text-neutral-600 transition-colors hover:text-white active:scale-95"
+                  aria-label="Remove exercise"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <button
+          onClick={addExercise}
+          className="flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-white active:scale-[0.98]"
+        >
+          <Plus className="h-4 w-4" />
+          Add Exercise
+        </button>
+        {exercises.length > 0 && (
+          <p className="text-xs text-neutral-600">
+            Each round runs all exercises in order. Rest applies between them.
+          </p>
+        )}
       </div>
+
+      {/* Rest */}
+      <TimeInput
+        label={exercises.length > 0 ? 'Rest Time (between exercises)' : 'Rest Time'}
+        value={config.pauseTime}
+        onChange={(v) => updateField('pauseTime', v)}
+      />
 
       <div className="border-t border-neutral-900" />
 

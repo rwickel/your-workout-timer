@@ -75,9 +75,19 @@ const Index: React.FC = () => {
             audio.speak('Prepare for work');
           }
           break;
-        case 'work':
-          audio.speak('Work');
+        case 'work': {
+          const exName =
+            config.exercises && config.exercises.length > 0
+              ? config.exercises[timer.state.currentExercise]?.name
+              : config.exerciseName;
+          const roundStart = timer.state.currentExercise === 0;
+          audio.speak(
+            exName?.trim()
+              ? `${roundStart ? `Round ${currentRound}. ` : ''}${exName.trim()}`
+              : 'Work'
+          );
           break;
+        }
         case 'pause':
           // Skip the announcement for very short rest times so it
           // doesn't overlap with the end-of-rest countdown
@@ -305,7 +315,15 @@ const Index: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-12"
               >
-                <TimerDisplay state={timer.state} totalRounds={config.rounds} exerciseName={config.exerciseName} />
+                <TimerDisplay
+                  state={timer.state}
+                  totalRounds={config.rounds}
+                  exerciseName={
+                    config.exercises && config.exercises.length > 0
+                      ? config.exercises[timer.state.currentExercise]?.name
+                      : config.exerciseName
+                  }
+                />
                 <TimerControls
                   state={timer.state}
                   onStart={timer.start}

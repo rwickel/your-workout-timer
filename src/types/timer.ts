@@ -1,5 +1,12 @@
+export interface IntervalExercise {
+  id: string;
+  name: string;
+  workTime: number; // in seconds
+}
+
 export interface TimerConfig {
   exerciseName?: string; // optional label shown during the workout
+  exercises?: IntervalExercise[]; // optional multi-exercise sequence per round
   workTime: number; // in seconds
   pauseTime: number; // in seconds
   preparationTime: number; // in seconds
@@ -14,6 +21,7 @@ export type TimerPhase = 'idle' | 'preparation' | 'work' | 'pause' | 'complete';
 export interface TimerState {
   phase: TimerPhase;
   currentRound: number;
+  currentExercise: number; // index into config.exercises (0 when single)
   timeRemaining: number;
   isRunning: boolean;
   totalElapsed: number;
