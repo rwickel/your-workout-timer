@@ -45,7 +45,8 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           <Minus className="h-5 w-5" />
         </button>
         <div className="flex-1 text-center font-mono text-3xl font-bold text-white tabular">
-          {displayValue}{suffix}
+          {displayValue}
+          {suffix && <span className="text-xs font-normal text-neutral-400">{suffix}</span>}
         </div>
         <button
           onClick={handleIncrement}

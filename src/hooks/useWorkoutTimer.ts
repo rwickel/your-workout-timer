@@ -136,7 +136,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     };
   }, [state.isRunning, tick]);
 
-  const start = useCallback(() => {
+  const start = useCallback((preparationTime?: number) => {
     setState(prev => {
       if (prev.phase === 'idle') {
         return {
@@ -144,7 +144,7 @@ export const useWorkoutTimer = (config: TimerConfig) => {
           phase: 'preparation',
           currentRound: 1,
           currentExercise: 0,
-          timeRemaining: config.preparationTime,
+          timeRemaining: Math.max(0, preparationTime ?? config.preparationTime),
           isRunning: true,
         };
       }
@@ -156,12 +156,12 @@ export const useWorkoutTimer = (config: TimerConfig) => {
     setState(prev => ({ ...prev, isRunning: false }));
   }, []);
 
-  const reset = useCallback(() => {
+  const reset = useCallback((preparationTime?: number) => {
     setState({
       phase: 'idle',
       currentRound: 1,
       currentExercise: 0,
-      timeRemaining: config.preparationTime,
+      timeRemaining: Math.max(0, preparationTime ?? config.preparationTime),
       isRunning: false,
       totalElapsed: 0,
     });

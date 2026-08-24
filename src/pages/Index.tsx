@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
-import { TimerConfig, DEFAULT_CONFIG, TimerPhase } from '@/types/timer';
+import { TimerConfig, DEFAULT_CONFIG, TimerPhase, getExerciseReps } from '@/types/timer';
 import { Wod } from '@/types/wod';
 import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
 import { useAudio } from '@/hooks/useAudio';
@@ -21,9 +21,11 @@ import { WodImport } from '@/components/WodImport';
 import { IntervalShareModal, IntervalImportModal } from '@/components/IntervalShare';
 import { decodeWod } from '@/lib/wodShare';
 import { decodeInterval } from '@/lib/intervalShare';
+import { SettingsPanel } from '@/components/SettingsPanel';
+import { getTimerSettings } from '@/lib/timerSettings';
 import { APP_VERSION } from '@/lib/version';
 
-type AppMode = 'intervals' | 'wod' | 'history';
+type AppMode = 'intervals' | 'wod' | 'history' | 'settings';
 
 const Index: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('intervals');
@@ -66,9 +68,49 @@ const Index: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Apply globally persisted audio/prep settings to the interval config
+    const s = getTimerSettings();
+    setConfig(c => ({
+      ...c,
+      countdownSeconds: s.countdownSeconds,
+      beepSeconds: s.beepSeconds,
+      preparationTime: s.preparationSeconds,
+    }));
+  }, []);
+
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
   const prevRoundRef = useRef<number>(timer.state.currentRound);
+  // Announce "Round X (, Y reps)" once per work phase, even when rest is 0
+  // and the phase never changes between rounds.
+  const lastWorkKeyRef = useRef('');
+
+  useEffect(() => {
+    const { phase, currentRound, currentExercise, isRunning } = timer.state;
+    if (phase !== 'work' || !isRunning) {
+      lastWorkKeyRef.current = '';
+      return;
+    }
+    const key = `${currentExercise}:${currentRound}`;
+    if (key === lastWorkKeyRef.current) return;
+    lastWorkKeyRef.current = key;
+
+    const ex = config.exercises?.[currentExercise];
+    const reps =
+      ex && ex.reps !== undefined
+        ? Math.max(0, ex.reps + (ex.repAdjustment ?? 0) * (currentRound - 1))
+        : undefined;
+    // Small delay so the announcement never collides with the final
+    // countdown digit of the previous phase in the speech queue.
+    window.setTimeout(() => {
+      audio.speak(
+        reps !== undefined && reps > 0
+          ? `Round ${currentRound}, ${reps} reps`
+          : `Round ${currentRound}`
+      );
+    }, 400);
+  }, [timer.state.phase, timer.state.isRunning, timer.state.currentRound, timer.state.currentExercise, config, audio]);
 
   useEffect(() => {
     audio.setEnabled(audioEnabled);
@@ -77,6 +119,8 @@ const Index: React.FC = () => {
 
   useEffect(() => {
     const currentPhase = timer.state.phase;
+    // Read the global settings on every tick so changes apply immediately
+    const { countdownSeconds, beepSeconds } = getTimerSettings();
     const currentTime = timer.state.timeRemaining;
     const currentRound = timer.state.currentRound;
     const curExTop = config.exercises && config.exercises.length > 0
@@ -98,15 +142,15 @@ const Index: React.FC = () => {
       switch (currentPhase) {
         case 'preparation':
           // Only announce when there is time to say it before the countdown
-          if (config.preparationTime > 10) {
+          if (config.preparationTime > countdownSeconds) {
             audio.speak('Prepare for work');
           }
           break;
-        case 'work': {
-          audio.speak(`Round ${currentRound}`);
-          break;
-        }
         case 'pause': {
+          // Suppress the announcement when the rest is shorter than the countdown length
+          if (pauseDuration < countdownSeconds) {
+            break;
+          }
           // During intervals: "prepare for Pushups" before the countdown, then "Round X" on work start
           if (config.exercises && config.exercises.length > 0) {
             const exercises = config.exercises;
@@ -149,11 +193,31 @@ const Index: React.FC = () => {
         roundsForCurEx > 1 &&
         currentRound < roundsForCurEx &&
         restForCurEx <= 0;
+      // Short phases (< countdown length) get no spoken countdown — only beeps/round announcement
+      const phaseDuration = curExTop
+        ? (currentPhase === 'work'
+            ? Math.max(0, curExTop.workTime + (curExTop.workAdjustment ?? config.workAdjustment) * (currentRound - 1))
+            : currentPhase === 'pause'
+              ? Math.max(0, (curExTop.pauseTime ?? config.pauseTime) + (curExTop.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
+              : config.preparationTime)
+        : (currentPhase === 'work'
+            ? Math.max(0, config.workTime + config.workAdjustment * (currentRound - 1))
+            : currentPhase === 'pause'
+              ? Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1))
+              : config.preparationTime);
+      const phaseTooShort = phaseDuration < countdownSeconds;
+      // The preparation phase always counts down via voice
+      const isPreparation = currentPhase === 'preparation';
 
-      if ((isPreWork || restIsSkipped) && currentTime <= 10 && currentTime > 0) {
+      if (
+        (isPreWork || restIsSkipped) &&
+        (isPreparation || !phaseTooShort) &&
+        currentTime <= countdownSeconds &&
+        currentTime > 0
+      ) {
         audio.speakCountdown(currentTime);
       } else {
-        audio.playCountdown(currentTime);
+        audio.playCountdown(currentTime, beepSeconds);
       }
     }
 
@@ -164,8 +228,11 @@ const Index: React.FC = () => {
 
   const handleStartWorkout = () => {
     setShowConfig(false);
-    timer.reset();
-    timer.start();
+    // Always start with the globally configured preparation time
+    const prep = getTimerSettings().preparationSeconds;
+    setConfig(c => ({ ...c, preparationTime: prep }));
+    timer.reset(prep);
+    timer.start(prep);
   };
 
   const handleBackToConfig = () => {
@@ -278,7 +345,7 @@ const Index: React.FC = () => {
           {/* Mode Tabs */}
           {showModeTabs && (
             <div className="mb-6 flex gap-6">
-              {(['intervals', 'wod', 'history'] as AppMode[]).map(m => (
+              {(['intervals', 'wod', 'history', 'settings'] as AppMode[]).map(m => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
@@ -288,7 +355,7 @@ const Index: React.FC = () => {
                       : 'border-b-2 border-transparent text-neutral-600 hover:text-neutral-400'
                   }`}
                 >
-                  {m === 'intervals' ? 'Intervals' : m === 'wod' ? 'WOD' : 'History'}
+                  {m === 'intervals' ? 'Intervals' : m === 'wod' ? 'WOD' : m === 'history' ? 'History' : 'Settings'}
                 </button>
               ))}
             </div>
@@ -367,6 +434,8 @@ const Index: React.FC = () => {
                       onDelete={deleteWod}
                     />
                   </>
+                ) : mode === 'settings' ? (
+                  <SettingsPanel />
                 ) : (
                   <HistoryPanel entries={history} onDelete={deleteEntry} />
                 )}
@@ -392,15 +461,12 @@ const Index: React.FC = () => {
                       : config.exerciseName
                   }
                   requiredReps={
-                    timer.state.phase === 'work' &&
-                    config.exercises?.[timer.state.currentExercise]?.mode === 'reps'
-                      ? Math.max(
-                          0,
-                          (config.exercises[timer.state.currentExercise]?.reps ?? 0) +
-                            (config.exercises[timer.state.currentExercise]?.workAdjustment ??
-                              config.workAdjustment) *
-                              (timer.state.currentRound - 1)
-                        )
+                    timer.state.phase === 'work'
+                      ? (() => {
+                          const ex = config.exercises?.[timer.state.currentExercise];
+                          if (!ex) return undefined;
+                          return getExerciseReps(ex, config, timer.state.currentRound);
+                        })()
                       : undefined
                   }
                 />

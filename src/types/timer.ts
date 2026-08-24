@@ -2,11 +2,11 @@ export interface IntervalExercise {
   id: string;
   name: string;
   rounds?: number; // own round count (defaults to global)
-  mode?: 'time' | 'reps'; // define by duration or by rep count (defaults to 'time')
-  reps?: number; // rep target when mode is 'reps'
-  workTime: number; // in seconds (used when mode is 'time')
+  workTime: number; // in seconds — always drives the timer
+  reps?: number; // optional rep target shown during the round (no effect on duration)
+  repAdjustment?: number; // reps added/subtracted each round (only for display)
   pauseTime?: number; // rest after this exercise (defaults to global)
-  workAdjustment?: number; // per-round adjustment (defaults to global)
+  workAdjustment?: number; // per-round work seconds adjustment (defaults to global)
   restAdjustment?: number;
 }
 
@@ -20,7 +20,8 @@ export interface TimerConfig {
   workAdjustment: number; // seconds to add/subtract work time each round
   restAdjustment: number; // seconds to add/subtract each round (can be negative)
   preparationAdjustment: number; // seconds to add/subtract each round
-  repSeconds: number; // seconds per rep used to estimate duration of rep-based exercises
+  countdownSeconds: number; // seconds before a phase end at which the spoken countdown starts
+  beepSeconds: number; // seconds before a phase end at which beeps start (0 = off)
 }
 
 export type TimerPhase = 'idle' | 'preparation' | 'work' | 'pause' | 'complete';
@@ -42,7 +43,8 @@ export const DEFAULT_CONFIG: TimerConfig = {
   workAdjustment: 0,
   restAdjustment: 0,
   preparationAdjustment: 0,
-  repSeconds: 2,
+  countdownSeconds: 10,
+  beepSeconds: 3,
   exercises: [
     {
       id: 'ex-1',
@@ -67,18 +69,23 @@ export const parseTime = (timeString: string): number => {
   return (mins || 0) * 60 + (secs || 0);
 };
 
+// Effective rep target of an exercise in a given round (undefined when no reps are set).
+export const getExerciseReps = (
+  ex: IntervalExercise,
+  config: TimerConfig,
+  round: number
+): number | undefined => {
+  if (ex.reps === undefined) return undefined;
+  return Math.max(0, ex.reps + (ex.repAdjustment ?? 0) * (round - 1));
+};
+
 // Effective work duration (in seconds) of an exercise in a given round,
-// honoring its time/reps mode and progressive adjustment.
-// In 'reps' mode the adjustment changes the rep count per round, not the seconds.
+// with its progressive second-based adjustment.
 export const getExerciseDuration = (
   ex: IntervalExercise,
   config: TimerConfig,
   round: number
 ): number => {
   const adj = ex.workAdjustment ?? config.workAdjustment;
-  if (ex.mode === 'reps') {
-    const reps = Math.max(0, (ex.reps ?? 0) + adj * (round - 1));
-    return Math.max(0, Math.round(reps * Math.max(0.5, config.repSeconds)));
-  }
   return Math.max(0, ex.workTime + adj * (round - 1));
 };

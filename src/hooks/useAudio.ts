@@ -69,8 +69,8 @@ export const useAudio = () => {
     }
   }, [playTone]);
 
-  const playCountdown = useCallback((secondsLeft: number) => {
-    if (secondsLeft <= 3 && secondsLeft > 0) {
+  const playCountdown = useCallback((secondsLeft: number, beepFrom: number = 3) => {
+    if (secondsLeft <= beepFrom && secondsLeft > 0) {
       playTone(600, 0.1, 'sine');
     }
   }, [playTone]);
@@ -81,17 +81,25 @@ export const useAudio = () => {
 
     try {
       if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
-        const englishVoice = window.speechSynthesis
+        const englishVoice = synth
           .getVoices()
           .find((voice) => voice.lang.startsWith('en'));
         if (englishVoice) {
           utterance.voice = englishVoice;
         }
         utterance.volume = volumeRef.current;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
+        // Only interrupt when something is actually playing — an unconditional
+        // cancel() right before speak() drops utterances in Chrome.
+        if (synth.speaking || synth.pending) {
+          synth.cancel();
+          // Chrome needs a beat between cancel() and speak()
+          setTimeout(() => synth.speak(utterance), 60);
+          return;
+        }
+        synth.speak(utterance);
       }
     } catch (e) {
       console.warn('Speech playback failed:', e);

@@ -52,7 +52,8 @@ export const TimeInput: React.FC<TimeInputProps> = ({
 
   const handleBlur = () => {
     setIsEditing(false);
-    const seconds = parseTime(inputValue);
+    const parsed = parseTime(inputValue);
+    const seconds = Number.isFinite(parsed) ? parsed : 0;
     const clampedValue = Math.max(min, Math.min(max, seconds));
     onChange(clampedValue);
     setInputValue(formatTime(clampedValue));

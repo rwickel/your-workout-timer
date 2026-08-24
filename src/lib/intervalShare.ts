@@ -4,8 +4,8 @@ import { TimerConfig, IntervalExercise } from '@/types/timer';
 interface CompactExercise {
   n?: string;
   r?: number;
-  m?: 'time' | 'reps';
-  p?: number; // reps
+  p?: number; // optional rep target
+  pa?: number; // rep adjustment per round
   w?: number;
   pt?: number;
   wa?: number;
@@ -20,7 +20,6 @@ interface CompactConfig {
   r: number; // rounds
   wa: number;
   ra: number;
-  rs?: number; // repSeconds
   x?: CompactExercise[];
 }
 
@@ -33,14 +32,13 @@ export const encodeInterval = (config: TimerConfig): string => {
     r: config.rounds,
     wa: config.workAdjustment,
     ra: config.restAdjustment,
-    rs: config.repSeconds !== 2 ? config.repSeconds : undefined,
     x:
       config.exercises && config.exercises.length > 0
         ? config.exercises.map(ex => ({
             n: ex.name || undefined,
             r: ex.rounds !== undefined ? ex.rounds : undefined,
-            m: ex.mode && ex.mode !== 'time' ? ex.mode : undefined,
             p: ex.reps,
+            pa: ex.repAdjustment,
             w: ex.workTime,
             pt: ex.pauseTime,
             wa: ex.workAdjustment,
@@ -65,8 +63,8 @@ export const decodeInterval = (encoded: string): TimerConfig | null => {
       id: `shared-${Date.now()}-${i}`,
       name: ex.n ?? '',
       rounds: ex.r,
-      mode: ex.m ?? 'time',
       reps: ex.p,
+      repAdjustment: ex.pa,
       workTime: Number(ex.w) || 0,
       pauseTime: ex.pt,
       workAdjustment: ex.wa,
@@ -81,7 +79,6 @@ export const decodeInterval = (encoded: string): TimerConfig | null => {
       workAdjustment: Number(c.wa) || 0,
       restAdjustment: Number(c.ra) || 0,
       preparationAdjustment: 0,
-      repSeconds: Number(c.rs) || 2,
       exercises,
     };
   } catch {
@@ -99,9 +96,7 @@ export const intervalWhatsappUrlFor = (config: TimerConfig): string => {
   const lines =
     config.exercises && config.exercises.length > 0
       ? config.exercises.map(ex =>
-          ex.mode === 'reps'
-            ? `${ex.name || 'Exercise'}: ${ex.reps ?? 0} reps`
-            : `${ex.name || 'Exercise'}: ${ex.workTime}s`
+          `${ex.name || 'Exercise'}: ${ex.workTime}s${ex.reps !== undefined ? ` (${ex.reps}${ex.repAdjustment ? `${ex.repAdjustment > 0 ? '+' : ''}${ex.repAdjustment}/round` : ''} reps)` : ''}`
         )
       : [`${config.exerciseName || 'Work'} ${config.workTime}s / ${config.pauseTime}s × ${config.rounds}`];
   const header = `${config.rounds} Rounds · ${config.workTime}s/${config.pauseTime}s`;

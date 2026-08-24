@@ -23,11 +23,6 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, 
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 px-4">
-      {/* Exercise Name */}
-      {exerciseName && state.phase !== 'complete' && (
-        <p className="text-lg font-bold text-white">{exerciseName}</p>
-      )}
-
       {/* Phase Label */}
       <AnimatePresence mode="wait">
         <motion.span
@@ -51,11 +46,18 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, 
         </span>
       </motion.div>
 
-      {/* Required Reps */}
-      {state.phase === 'work' && requiredReps !== undefined && (
-        <p className="-mt-4 text-xl font-bold uppercase tracking-widest text-neutral-300 tabular">
-          {requiredReps} Reps
-        </p>
+      {/* Exercise + Required Reps below the work time */}
+      {state.phase !== 'complete' && (exerciseName || requiredReps !== undefined) && (
+        <div className="-mt-4 flex flex-col items-center gap-1">
+          {exerciseName && (
+            <span className="text-xl font-bold text-white">{exerciseName}</span>
+          )}
+          {requiredReps !== undefined && state.phase === 'work' && (
+            <span className="text-base font-bold uppercase tracking-widest text-neutral-300 tabular">
+              {requiredReps} Reps
+            </span>
+          )}
+        </div>
       )}
 
       {/* Round Indicator */}

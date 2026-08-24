@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { Wod, WodResult, SCHEME_LABELS, formatWodTime } from '@/types/wod';
+import { getTimerSettings } from '@/lib/timerSettings';
 
 interface WodRunnerProps {
   wod: Wod;
@@ -14,6 +15,7 @@ type RunnerStatus = 'ready' | 'prep' | 'running' | 'paused' | 'done';
 /* ---------------- Rounds scheme: exercise -> rest -> exercise ---------------- */
 
 const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
+  const timerSettings = getTimerSettings();
   const [status, setStatus] = useState<RunnerStatus>('ready');
   const [prepRemaining, setPrepRemaining] = useState(0);
   const [round, setRound] = useState(1);
@@ -112,14 +114,14 @@ const RoundsRunner: React.FC<WodRunnerProps> = ({ wod, onFinish, onExit }) => {
 
   // Prep voice
   useEffect(() => {
-    if (status === 'prep' && prepRemaining > 0 && prepRemaining <= 10) {
+    if (status === 'prep' && prepRemaining > 0 && prepRemaining <= timerSettings.countdownSeconds) {
       speak(String(prepRemaining));
     }
   }, [status, prepRemaining, speak]);
 
   const start = () => {
     beep(660);
-    setPrepRemaining(10);
+    setPrepRemaining(timerSettings.preparationSeconds);
     setStatus('prep');
     speak('Get ready');
   };
@@ -279,6 +281,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
   const [roundsDone, setRoundsDone] = useState(0); // manual round counter (AMRAP)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const spokenRef = useRef<Set<string>>(new Set());
+  const timerSettings = getTimerSettings();
 
   const timeCap = wod.scheme === 'fortime' && !wod.timeCapSeconds ? 3600 : wod.timeCapSeconds;
   const roundSeconds = wod.scheme === 'emom' ? Math.max(10, wod.roundSeconds ?? 60) : 60;
@@ -292,7 +295,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
 
   // Prep applies to AMRAP, EMOM and For Time
   const needsPrep = wod.scheme !== 'rounds';
-  const prepTotal = 10;
+  const prepTotal = timerSettings.preparationSeconds;
 
   const totalSeconds =
     wod.scheme === 'amrap' || wod.scheme === 'fortime'
@@ -365,7 +368,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
   // Prep countdown voice
   useEffect(() => {
     if (status !== 'prep') return;
-    if (prepRemaining > 0 && prepRemaining <= 10) {
+    if (prepRemaining > 0 && prepRemaining <= timerSettings.countdownSeconds) {
       speak(String(prepRemaining));
     }
   }, [status, prepRemaining, speak]);
@@ -376,7 +379,7 @@ export const WodRunner: React.FC<WodRunnerProps> = (props) => {
     const remaining = totalSeconds - elapsed;
 
     // Countdown last 10 seconds
-    if (remaining <= 10 && remaining > 0) {
+    if (remaining <= timerSettings.countdownSeconds && remaining > 0) {
       const key = `count-${remaining}`;
       if (!spokenRef.current.has(key)) {
         spokenRef.current.add(key);

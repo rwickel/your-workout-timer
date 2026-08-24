@@ -103,10 +103,8 @@ export const IntervalImportModal: React.FC<IntervalImportModalProps> = ({ config
               {config.exercises.map(ex => (
                 <p key={ex.id} className="text-sm text-neutral-400 tabular">
                   {ex.name || 'Exercise'}:{' '}
-                  <span className="font-bold text-white">
-                    {ex.mode === 'reps' ? `${ex.reps ?? 0} reps` : `${ex.workTime}s`}
-                  </span>{' '}
-                  × {ex.rounds ?? config.rounds}
+                  <span className="font-bold text-white">{ex.workTime}s</span>
+                  {ex.reps !== undefined && ` (${ex.reps} reps)`} × {ex.rounds ?? config.rounds}
                 </p>
               ))}
             </div>
