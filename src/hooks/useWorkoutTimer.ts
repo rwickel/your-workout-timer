@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { TimerConfig, TimerState, TimerPhase } from '@/types/timer';
+import { TimerConfig, TimerState, TimerPhase, getExerciseDuration } from '@/types/timer';
 
 export const useWorkoutTimer = (config: TimerConfig) => {
   const [state, setState] = useState<TimerState>({
@@ -29,9 +29,8 @@ export const useWorkoutTimer = (config: TimerConfig) => {
   // Per-exercise work time with its own progressive adjustment
   const getWorkFor = useCallback((exIdx: number, round: number) => {
     const ex = getExercises()[exIdx];
-    const adj = ex.workAdjustment ?? config.workAdjustment;
-    return Math.max(0, ex.workTime + adj * (round - 1));
-  }, [config.workAdjustment, getExercises]);
+    return getExerciseDuration(ex, config, round);
+  }, [config, getExercises]);
 
   // Rest after a given exercise, using its own rest time/adjustment when set
   const getRestFor = useCallback((exIdx: number, round: number) => {
@@ -76,10 +75,13 @@ export const useWorkoutTimer = (config: TimerConfig) => {
       }
       case 'work': {
         // Rest after this exercise; skipped when its rest time is 0
-        if (getRestFor(currentEx, currentRound) <= 0) {
-          return advanceFromExercise(currentRound, currentEx);
+        const rest = getRestFor(currentEx, currentRound);
+        const upcoming = advanceFromExercise(currentRound, currentEx);
+        if (rest <= 0 || upcoming.phase === 'complete') {
+          // No rest (or workout is finished): go straight to the next phase
+          return upcoming;
         }
-        return { phase: 'pause', round: currentRound, ex: currentEx, time: getRestFor(currentEx, currentRound) };
+        return { phase: 'pause', round: currentRound, ex: currentEx, time: rest };
       }
       case 'pause':
         return advanceFromExercise(currentRound, currentEx);

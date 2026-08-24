@@ -2,7 +2,9 @@ export interface IntervalExercise {
   id: string;
   name: string;
   rounds?: number; // own round count (defaults to global)
-  workTime: number; // in seconds
+  mode?: 'time' | 'reps'; // define by duration or by rep count (defaults to 'time')
+  reps?: number; // rep target when mode is 'reps'
+  workTime: number; // in seconds (used when mode is 'time')
   pauseTime?: number; // rest after this exercise (defaults to global)
   workAdjustment?: number; // per-round adjustment (defaults to global)
   restAdjustment?: number;
@@ -18,6 +20,7 @@ export interface TimerConfig {
   workAdjustment: number; // seconds to add/subtract work time each round
   restAdjustment: number; // seconds to add/subtract each round (can be negative)
   preparationAdjustment: number; // seconds to add/subtract each round
+  repSeconds: number; // seconds per rep used to estimate duration of rep-based exercises
 }
 
 export type TimerPhase = 'idle' | 'preparation' | 'work' | 'pause' | 'complete';
@@ -39,6 +42,7 @@ export const DEFAULT_CONFIG: TimerConfig = {
   workAdjustment: 0,
   restAdjustment: 0,
   preparationAdjustment: 0,
+  repSeconds: 2,
   exercises: [
     {
       id: 'ex-1',
@@ -61,4 +65,20 @@ export const formatTime = (seconds: number): string => {
 export const parseTime = (timeString: string): number => {
   const [mins, secs] = timeString.split(':').map(Number);
   return (mins || 0) * 60 + (secs || 0);
+};
+
+// Effective work duration (in seconds) of an exercise in a given round,
+// honoring its time/reps mode and progressive adjustment.
+// In 'reps' mode the adjustment changes the rep count per round, not the seconds.
+export const getExerciseDuration = (
+  ex: IntervalExercise,
+  config: TimerConfig,
+  round: number
+): number => {
+  const adj = ex.workAdjustment ?? config.workAdjustment;
+  if (ex.mode === 'reps') {
+    const reps = Math.max(0, (ex.reps ?? 0) + adj * (round - 1));
+    return Math.max(0, Math.round(reps * Math.max(0.5, config.repSeconds)));
+  }
+  return Math.max(0, ex.workTime + adj * (round - 1));
 };

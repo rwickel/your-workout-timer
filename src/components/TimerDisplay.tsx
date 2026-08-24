@@ -7,6 +7,7 @@ interface TimerDisplayProps {
   state: TimerState;
   totalRounds: number;
   exerciseName?: string;
+  requiredReps?: number;
 }
 
 const phaseLabels: Record<string, string> = {
@@ -17,7 +18,7 @@ const phaseLabels: Record<string, string> = {
   complete: 'Complete',
 };
 
-export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, exerciseName }) => {
+export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, exerciseName, requiredReps }) => {
   const isLowTime = state.timeRemaining <= 3 && state.timeRemaining > 0 && state.phase !== 'complete';
 
   return (
@@ -49,6 +50,13 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({ state, totalRounds, 
           {formatTime(state.timeRemaining)}
         </span>
       </motion.div>
+
+      {/* Required Reps */}
+      {state.phase === 'work' && requiredReps !== undefined && (
+        <p className="-mt-4 text-xl font-bold uppercase tracking-widest text-neutral-300 tabular">
+          {requiredReps} Reps
+        </p>
+      )}
 
       {/* Round Indicator */}
       <div className="flex items-baseline gap-2">

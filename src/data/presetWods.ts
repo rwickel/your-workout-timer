@@ -33,27 +33,27 @@ const mk = (
 export const PRESET_WODS: Wod[] = [
   mk('p-cindy', 'Cindy', 'amrap', 20 * 60, 1, [
     ['Pull-Ups', 5],
-    ['Push-Ups', 10],
+    ['Pushups', 10],
     ['Air Squats', 15],
   ], bm('12-14 rounds', '15-18 rounds', '19-22 rounds', '23+ rounds')),
   mk('p-mary', 'Mary', 'amrap', 20 * 60, 1, [
-    ['Handstand Push-Ups', 5],
+    ['Handstand Pushups', 5],
     ['Pistol Squats', 10],
     ['Pull-Ups', 15],
   ], bm('7-9 rounds', '10-13 rounds', '14-16 rounds', '17+ rounds')),
   mk('p-chelsea', 'Chelsea', 'emom', 30 * 60, 30, [
     ['Pull-Ups', 5],
-    ['Push-Ups', 10],
+    ['Pushups', 10],
     ['Air Squats', 15],
   ], bm('20+ rounds completed', '25+ rounds completed', 'full 30 min (Rx)', 'full 30 min unbroken'), 60),
   mk('p-murph', 'Murph (Partitioned)', 'fortime', 60 * 60, 1, [
     ['Pull-Ups', 100],
-    ['Push-Ups', 200],
+    ['Pushups', 200],
     ['Air Squats', 300],
   ], bm('55-70 min', '45-55 min', '35-45 min', '<35 min')),
   mk('p-300', 'The 300', 'fortime', 45 * 60, 1, [
     ['Pull-Ups', 25],
-    ['Push-Ups', 50],
+    ['Pushups', 50],
     ['Jumping Jacks', 50],
     ['Floor Wipers', 50],
     ['Air Squats', 50],
@@ -75,13 +75,13 @@ export const PRESET_WODS: Wod[] = [
   ], bm('9-12 min', '7-9 min', '5-7 min', '<5 min')),
   mk('p-tabata', 'Tabata Something Else', 'rounds', 32 * 60, 4, [
     ['Pull-Ups', 10],
-    ['Push-Ups', 10],
+    ['Pushups', 10],
     ['Sit-Ups', 10],
     ['Air Squats', 10],
   ], undefined, undefined, 10),
   mk('p-barbara', 'Barbara', 'rounds', 60 * 60, 5, [
     ['Pull-Ups', 20],
-    ['Push-Ups', 30],
+    ['Pushups', 30],
     ['Sit-Ups', 40],
     ['Air Squats', 50],
   ], bm('28-34 min total', '24-28 min total', '21-24 min total', '<21 min total'), undefined, 120),
@@ -93,7 +93,7 @@ export const PRESET_WODS: Wod[] = [
   ], bm('9-12 min', '7-9 min', '5-7 min', '<4 min')),
   mk('p-angie', 'Angie', 'fortime', 60 * 60, 1, [
     ['Pull-Ups', 100],
-    ['Push-Ups', 100],
+    ['Pushups', 100],
     ['Sit-Ups', 100],
     ['Air Squats', 100],
   ], bm('30-40 min', '22-30 min', '16-22 min', '<15 min')),
@@ -124,13 +124,13 @@ export const PRESET_WODS: Wod[] = [
     ['Pistol Squats', 10],
   ], undefined, undefined, 90),
   mk('p-handstand', 'Handstand Heaven', 'amrap', 12 * 60, 1, [
-    ['Handstand Push-Ups', 5],
+    ['Handstand Pushups', 5],
     ['Handstand Hold (s)', 30],
-    ['Push-Ups', 15],
+    ['Pushups', 15],
   ]),
   mk('p-upside-down', 'Upside Down', 'fortime', 25 * 60, 1, [
     ['Upside Down Deadlifts', 20],
-    ['Wall Handstand Push-Ups', 20],
+    ['Wall Handstand Pushups', 20],
     ['Hanging Leg Raises', 20],
     ['Air Squats', 40],
   ]),
@@ -154,3 +154,4 @@ export const PRESET_WODS: Wod[] = [
     ['Hanging Leg Raises', 50],
   ]),
 ];
+

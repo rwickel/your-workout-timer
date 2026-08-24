@@ -18,7 +18,9 @@ import { WodPanel } from '@/components/WodPanel';
 import { WodRunner } from '@/components/WodRunner';
 import { HistoryPanel } from '@/components/HistoryPanel';
 import { WodImport } from '@/components/WodImport';
+import { IntervalShareModal, IntervalImportModal } from '@/components/IntervalShare';
 import { decodeWod } from '@/lib/wodShare';
+import { decodeInterval } from '@/lib/intervalShare';
 import { APP_VERSION } from '@/lib/version';
 
 type AppMode = 'intervals' | 'wod' | 'history';
@@ -39,6 +41,9 @@ const Index: React.FC = () => {
 
   // Shared WOD import via URL — supports /wod?d=... and /#/wod?d=...
   const [importWod, setImportWod] = useState<Wod | null>(null);
+  // Shared interval workout via /interval?d=...
+  const [importInterval, setImportInterval] = useState<TimerConfig | null>(null);
+  const [sharingInterval, setSharingInterval] = useState(false);
   useEffect(() => {
     const fromQuery = new URLSearchParams(window.location.search).get('d');
     const hashMatch = window.location.hash.match(/#\/wod\?d=([A-Za-z0-9\-_]+)/);
@@ -47,11 +52,23 @@ const Index: React.FC = () => {
       const decoded = decodeWod(encoded);
       if (decoded) setImportWod(decoded);
       window.history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+    // Shared interval workout via /interval?d=... or /#/interval?d=...
+    const isIntervalShare = window.location.pathname.endsWith('/interval') || window.location.hash.includes('/interval?d=');
+    if (isIntervalShare) {
+      const iEncoded = new URLSearchParams(window.location.hash.split('?')[1] ?? window.location.search).get('d');
+      if (iEncoded) {
+        const decodedConfig = decodeInterval(iEncoded);
+        if (decodedConfig) setImportInterval(decodedConfig);
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     }
   }, []);
 
   const prevPhaseRef = useRef<TimerPhase>(timer.state.phase);
   const prevTimeRef = useRef<number>(timer.state.timeRemaining);
+  const prevRoundRef = useRef<number>(timer.state.currentRound);
 
   useEffect(() => {
     audio.setEnabled(audioEnabled);
@@ -66,9 +83,14 @@ const Index: React.FC = () => {
       ? config.exercises[timer.state.currentExercise]
       : null;
 
-    if (prevPhaseRef.current !== currentPhase && currentPhase !== 'idle') {
-      audio.playPhaseChange(currentPhase);
+    const phaseChanged = prevPhaseRef.current !== currentPhase;
+    const roundChanged = prevRoundRef.current !== currentRound;
 
+    if (phaseChanged && currentPhase !== 'idle') {
+      audio.playPhaseChange(currentPhase);
+    }
+
+    if ((phaseChanged || roundChanged) && currentPhase !== 'idle' && currentRound > 0) {
       const pauseDuration = curExTop
         ? Math.max(0, (curExTop.pauseTime ?? config.pauseTime) + (curExTop.restAdjustment ?? config.restAdjustment) * (currentRound - 1))
         : Math.max(0, config.pauseTime + config.restAdjustment * (currentRound - 1));
@@ -98,16 +120,14 @@ const Index: React.FC = () => {
               nextName = exercises[timer.state.currentExercise + 1]?.name;
             }
             if (nextName?.trim()) {
-              if (pauseDuration > 10) audio.speak(`prepare for ${nextName.trim()}`);
+              audio.speak(`prepare for ${nextName.trim()}`);
               break;
             }
           } else if (config.exerciseName?.trim()) {
-            if (pauseDuration > 10) audio.speak(`prepare for ${config.exerciseName.trim()}`);
+            audio.speak(`prepare for ${config.exerciseName.trim()}`);
             break;
           }
-          if (pauseDuration > 10) {
-            audio.speak('Prepare for rest');
-          }
+          audio.speak('Prepare for rest');
           break;
         }
         case 'complete':
@@ -139,6 +159,7 @@ const Index: React.FC = () => {
 
     prevPhaseRef.current = currentPhase;
     prevTimeRef.current = currentTime;
+    prevRoundRef.current = currentRound;
   }, [timer.state.phase, timer.state.timeRemaining, timer.state.isRunning, audio]);
 
   const handleStartWorkout = () => {
@@ -165,7 +186,7 @@ const Index: React.FC = () => {
   };
 
   // Mode tabs shown only on the config screen
-  const showModeTabs = showConfig && !activeWod && !importWod;
+  const showModeTabs = showConfig && !activeWod && !importWod && !importInterval;
 
   const handleImport = (wod: Wod, startNow: boolean) => {
     saveWod(wod);
@@ -205,6 +226,22 @@ const Index: React.FC = () => {
           onImport={handleImport}
           onDismiss={() => setImportWod(null)}
         />
+      )}
+      {importInterval && (
+        <IntervalImportModal
+          config={importInterval}
+          onImport={() => {
+            setConfig(importInterval);
+            setMode('intervals');
+            setShowConfig(true);
+            setActiveWod(null);
+            setImportInterval(null);
+          }}
+          onDismiss={() => setImportInterval(null)}
+        />
+      )}
+      {sharingInterval && (
+        <IntervalShareModal config={config} onClose={() => setSharingInterval(false)} />
       )}
       {/* Header */}
       <header
@@ -307,6 +344,14 @@ const Index: React.FC = () => {
 
                     <motion.button
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => setSharingInterval(true)}
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-900 py-3 text-sm font-medium uppercase tracking-widest text-neutral-400 transition-all duration-150 hover:border-neutral-400 hover:text-white active:scale-[0.98]"
+                    >
+                      Share Workout
+                    </motion.button>
+
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
                       onClick={handleStartWorkout}
                       className="w-full rounded-lg bg-white py-4 text-base font-semibold uppercase tracking-widest text-black transition-all duration-150 hover:bg-neutral-200 active:scale-[0.98]"
                     >
@@ -345,6 +390,18 @@ const Index: React.FC = () => {
                     config.exercises && config.exercises.length > 0
                       ? config.exercises[timer.state.currentExercise]?.name
                       : config.exerciseName
+                  }
+                  requiredReps={
+                    timer.state.phase === 'work' &&
+                    config.exercises?.[timer.state.currentExercise]?.mode === 'reps'
+                      ? Math.max(
+                          0,
+                          (config.exercises[timer.state.currentExercise]?.reps ?? 0) +
+                            (config.exercises[timer.state.currentExercise]?.workAdjustment ??
+                              config.workAdjustment) *
+                              (timer.state.currentRound - 1)
+                        )
+                      : undefined
                   }
                 />
                 <TimerControls

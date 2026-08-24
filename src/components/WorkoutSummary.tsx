@@ -1,30 +1,46 @@
 import React from 'react';
-import { TimerConfig, formatTime } from '@/types/timer';
+import { TimerConfig, IntervalExercise, formatTime, getExerciseDuration } from '@/types/timer';
 
 interface WorkoutSummaryProps {
   config: TimerConfig;
 }
 
 export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ config }) => {
-  // Calculate total workout time
+  // Calculate total workout time, mirroring useWorkoutTimer's phase machine
   const calculateTotalTime = () => {
-    let total = 0;
+    const exercises: IntervalExercise[] =
+      config.exercises && config.exercises.length > 0
+        ? config.exercises
+        : [{ id: 'single', name: '', workTime: config.workTime }];
 
-    for (let round = 1; round <= config.rounds; round++) {
-      total += config.workTime;
+    let total = Math.max(0, config.preparationTime);
+    let totalWork = 0;
 
-      // Rest time between rounds (not after the last round)
-      if (round < config.rounds) {
-        const adjustedPause = Math.max(0, config.pauseTime + config.restAdjustment * (round - 1));
-        total += adjustedPause;
+    for (let i = 0; i < exercises.length; i++) {
+      const ex = exercises[i];
+      const exRounds = ex.rounds ?? config.rounds;
+      const rAdj = ex.restAdjustment ?? config.restAdjustment;
+      const baseRest = ex.pauseTime ?? config.pauseTime;
+
+      for (let round = 1; round <= exRounds; round++) {
+        const isFinalPhase = i === exercises.length - 1 && round === exRounds;
+        const work = getExerciseDuration(ex, config, round);
+        total += work;
+        totalWork += work;
+
+        // Rest follows every phase except the very last one
+        if (!isFinalPhase) {
+          const rest = Math.max(0, baseRest + rAdj * (round - 1));
+          // Runner skips zero/negative rest entirely
+          total += rest;
+        }
       }
     }
 
-    return Math.max(0, total);
+    return { total: Math.max(0, total), totalWork };
   };
 
-  const totalSeconds = calculateTotalTime();
-  const totalWorkTime = config.workTime * config.rounds;
+  const { total: totalSeconds, totalWork } = calculateTotalTime();
 
   return (
     <div className="flex items-center justify-between border-y border-neutral-900 py-5">
@@ -37,7 +53,7 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ config }) => {
       <div className="text-right">
         <p className="section-label">Work</p>
         <p className="mt-1 font-mono text-xl font-bold text-neutral-400 tabular">
-          {formatTime(totalWorkTime)}
+          {formatTime(totalWork)}
         </p>
       </div>
     </div>

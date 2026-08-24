@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Trash2 } from 'lucide-react';
-import { TimerConfig } from '@/types/timer';
+import { TimerConfig, IntervalExercise, getExerciseDuration } from '@/types/timer';
 import { TimeInput } from './TimeInput';
 import { NumberInput } from './NumberInput';
 
@@ -19,13 +19,29 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
 
   // Ladder preview: e.g. "R1 2/2 · R2 4/4 · R3 6/6"
   const formatSec = (s: number) => `${Math.max(0, s)}s`;
-  const ladderPreview = (work: number, rest: number, workAdj: number, restAdj: number, maxRound: number) => {
+  const ladderPreview = (ex: IntervalExercise) => {
+    const maxRound = ex.rounds ?? config.rounds;
+    const isReps = ex.mode === 'reps';
     const roundsToShow = Math.min(3, maxRound);
     const parts = Array.from({ length: roundsToShow }, (_, i) => {
       const r = i + 1;
-      return `R${r} ${formatSec(work + workAdj * (r - 1))}/${formatSec(rest + restAdj * (r - 1))}`;
+      if (isReps) {
+        const adj = ex.workAdjustment ?? config.workAdjustment;
+        const reps = Math.max(0, (ex.reps ?? 0) + adj * (r - 1));
+        return `R${r} ${reps} reps`;
+      }
+      return `R${r} ${formatSec(getExerciseDuration(ex, config, r))}/${formatSec(Math.max(0, (ex.pauseTime ?? config.pauseTime) + (ex.restAdjustment ?? config.restAdjustment) * (r - 1)))}`;
     });
-    if (maxRound > roundsToShow) parts.push('…');
+    if (maxRound > roundsToShow) {
+      const r = maxRound;
+      if (isReps) {
+        const adj = ex.workAdjustment ?? config.workAdjustment;
+        const reps = Math.max(0, (ex.reps ?? 0) + adj * (r - 1));
+        parts.push(`… R${r} ${reps} reps`);
+      } else {
+        parts.push(`… R${r} ${formatSec(getExerciseDuration(ex, config, r))}/${formatSec(Math.max(0, (ex.pauseTime ?? config.pauseTime) + (ex.restAdjustment ?? config.restAdjustment) * (r - 1)))}`);
+      }
+    }
     return parts.join(' · ');
   };
 
@@ -36,10 +52,11 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
     ]);
   };
 
-  const updateExercise = (id: string, field: 'name' | 'workTime' | 'pauseTime' | 'workAdjustment' | 'restAdjustment', value: string) => {
+  const updateExercise = (id: string, field: 'name' | 'workTime' | 'pauseTime' | 'workAdjustment' | 'restAdjustment' | 'reps' | 'mode', value: string) => {
     updateField('exercises', exercises.map(ex => {
       if (ex.id !== id) return ex;
       if (field === 'name') return { ...ex, name: value };
+      if (field === 'mode') return { ...ex, mode: value as IntervalExercise['mode'] };
       return { ...ex, [field]: Number(value) || 0 };
     }));
   };
@@ -100,26 +117,63 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                   min={1}
                   max={99}
                 />
-                <TimeInput
-                  label="Work Time"
-                  value={ex.workTime}
-                  onChange={(v) => updateExercise(ex.id, 'workTime', String(v))}
-                />
+                <div className="flex gap-2">
+                  {(['time', 'reps'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => updateExercise(ex.id, 'mode', m)}
+                      className={`min-h-[36px] flex-1 rounded-lg border text-xs font-medium uppercase tracking-widest transition-colors ${
+                        (ex.mode ?? 'time') === m
+                          ? 'border-white bg-white/10 text-white'
+                          : 'border-neutral-800 text-neutral-500 hover:text-neutral-300'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+                {(ex.mode ?? 'time') === 'time' ? (
+                  <TimeInput
+                    label="Work Time"
+                    value={ex.workTime}
+                    onChange={(v) => updateExercise(ex.id, 'workTime', String(v))}
+                  />
+                ) : (
+                  <NumberInput
+                    label="Reps"
+                    value={ex.reps ?? 0}
+                    onChange={(v) => updateExercise(ex.id, 'reps', String(Math.max(0, v)))}
+                    min={0}
+                    max={999}
+                  />
+                )}
                 <TimeInput
                   label="Rest Time"
                   value={ex.pauseTime ?? config.pauseTime}
                   onChange={(v) => updateExercise(ex.id, 'pauseTime', String(v))}
                 />
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberInput
-                    label="Work Adj. (+s/Round)"
-                    value={ex.workAdjustment ?? config.workAdjustment}
-                    onChange={(v) => updateExercise(ex.id, 'workAdjustment', String(v))}
-                    min={-30}
-                    max={30}
-                    suffix="s"
-                    showSign
-                  />
+                  {(ex.mode ?? 'time') === 'time' ? (
+                    <NumberInput
+                      label="Work Adj. (+s/Round)"
+                      value={ex.workAdjustment ?? config.workAdjustment}
+                      onChange={(v) => updateExercise(ex.id, 'workAdjustment', String(v))}
+                      min={-30}
+                      max={30}
+                      suffix="s"
+                      showSign
+                    />
+                  ) : (
+                    <NumberInput
+                      label="Reps Adj. (+/Round)"
+                      value={ex.workAdjustment ?? config.workAdjustment}
+                      onChange={(v) => updateExercise(ex.id, 'workAdjustment', String(v))}
+                      min={-30}
+                      max={30}
+                      suffix=" reps"
+                      showSign
+                    />
+                  )}
                   <NumberInput
                     label="Rest Adj. (+s/Round)"
                     value={ex.restAdjustment ?? config.restAdjustment}
@@ -131,13 +185,7 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
                   />
                 </div>
                 <p className="text-xs text-neutral-500 tabular">
-                  {ladderPreview(
-                    ex.workTime,
-                    ex.pauseTime ?? config.pauseTime,
-                    ex.workAdjustment ?? config.workAdjustment,
-                    ex.restAdjustment ?? config.restAdjustment,
-                    ex.rounds ?? config.rounds
-                  )}
+                  {ladderPreview(ex)}
                 </p>
               </div>
             ))}
@@ -163,6 +211,18 @@ export const ConfigCard: React.FC<ConfigCardProps> = ({ config, onChange }) => {
           label="Rest Time (between exercises)"
           value={config.pauseTime}
           onChange={(v) => updateField('pauseTime', v)}
+        />
+      )}
+
+      {/* Rep pacing — only needed when at least one exercise is rep-based */}
+      {exercises.some(ex => ex.mode === 'reps') && (
+        <NumberInput
+          label="Seconds per Rep"
+          value={config.repSeconds}
+          onChange={(v) => updateField('repSeconds', Math.max(0.5, v))}
+          min={0.5}
+          max={30}
+          suffix="s"
         />
       )}
     </motion.div>

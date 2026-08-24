@@ -48,7 +48,7 @@ export const DEFAULT_WOD: Wod = {
   rounds: 5,
   movements: [
     { id: 'm1', name: 'Pull-Ups', reps: 5 },
-    { id: 'm2', name: 'Push-Ups', reps: 10 },
+    { id: 'm2', name: 'Pushups', reps: 10 },
     { id: 'm3', name: 'Air Squats', reps: 15 },
   ],
 };
@@ -58,3 +58,4 @@ export const formatWodTime = (seconds: number): string => {
   const secs = Math.abs(seconds) % 60;
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
+
